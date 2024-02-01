@@ -28,17 +28,20 @@ function init(OPPONENT,LEVEL="easy"){
         }
     }
 
+    // game state
     let manDigits = 5;
     let oppDigits = 5;
+
+    let lastGuess = null;
+    lastGuess = {count:3, number:2};
 
     let manSequence = getRandomNumberSequence(manDigits,4);
     let oppSequence = getRandomNumberSequence(oppDigits,4);
 
     drawNumbers(manSequence,"bottom");
     drawNumbers(new Array(oppDigits).fill(UNKNOWN),"top");
+    drawGuessBTNs();
 
-    let lastGuess = null;
-    lastGuess = {count:3, number:2};
 
     function validGuess(guess) {
         if(!lastGuess)  return true;
@@ -49,25 +52,26 @@ function init(OPPONENT,LEVEL="easy"){
     function drawGuessBTNs() {
         for(let i=1; i<=manDigits+oppDigits; i++) {
             for(let j=1; j<=4; j++) {
-                const number = document.createElement("div");
-                number.id = `${i} ${j}`;
-                number.dataset.guess = JSON.stringify({count:i, number:j});
-                number.classList.add("guesstile");
-                number.innerHTML = j;
-                number.style.top = (2+j)*tileWidth + "px";;
-                number.style.left = (i)*tileWidth + "px";
-
-                // change the color to blue if it's the last guess
-                if(lastGuess && i <= lastGuess.count && j == lastGuess.number)
-                {
-                    number.style.backgroundColor = "yellow";
+                let guesstile = document.getElementById(`${i} ${j}`);
+                
+                if(!guesstile) {
+                    // draw the button for the first time
+                    guesstile = document.createElement("div");
+                    guesstile.id = `${i} ${j}`;
+                    guesstile.dataset.guess = JSON.stringify({count:i, number:j});
+                    guesstile.classList.add("guesstile");
+                    guesstile.innerHTML = j;
+                    guesstile.style.top = (2+j)*tileWidth + "px";;
+                    guesstile.style.left = (i)*tileWidth + "px";
+                    guessSection.appendChild(guesstile);
                 }
-                guessSection.appendChild(number);
+
+                // change the color to yellow if it's the last guess
+                guesstile.style.backgroundColor = (lastGuess && i <= lastGuess.count && j == lastGuess.number)? "yellow":"white";
             }
         }
     }
 
-    drawGuessBTNs();
 
     guessSection.addEventListener('mouseover', function(event){
         const hoveredElement = event.target;
@@ -98,5 +102,17 @@ function init(OPPONENT,LEVEL="easy"){
                 guesstile.style.backgroundColor = (lastGuess && i <= lastGuess.count && guess.number == lastGuess.number)? "yellow":"white";
             }
         }
+    })
+
+    guessSection.addEventListener('click', function(event){
+        const clickedElement = event.target;
+        if(!clickedElement.classList.contains("guesstile")) return;
+
+        const guess = JSON.parse(clickedElement.dataset.guess);
+        if(!validGuess(guess))  return;
+        lastGuess = guess;
+
+        drawGuessBTNs();
+
     })
 }

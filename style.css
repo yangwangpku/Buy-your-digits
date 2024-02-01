@@ -194,6 +194,7 @@
 
 .guesstext{
     font-family: "Roboto";
+    color: green;
     display: flex;
     width: var(--container-width);
     height: var(--container-height);
