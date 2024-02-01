@@ -84,7 +84,7 @@
     border: 1px solid #000;
 }
 
-.options .friend:hover, .computer:hover, .x:hover, .o:hover{
+.options .friend:hover, .computer:hover, .easy:hover, .hard:hover{
     background-color: #011627;
     color: #FFF;
 }
@@ -267,4 +267,8 @@
     background-color: red;
     color: white;
     cursor: pointer;
+}
+
+.gameover .play:hover{
+    background-color: orange;
 }
