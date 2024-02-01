@@ -280,13 +280,20 @@ function init(OPPONENT,LEVEL="easy"){
 
         if (safeGuess.length > 0) {
             let randomIndex = getRandomNumber(0,safeGuess.length-1);
-            return safeGuess[randomIndex];
+            let guess = safeGuess[randomIndex];
+            if(lastGuess && guess.number != lastGuess.number && guess.count + lastGuess.count > man.digits+opp.digits) {
+                // don't make stupid guess
+                return "call";
+            }
+            else
+                return safeGuess[randomIndex];
         } 
         else if (opp.sequence.filter(num=>num==lastGuess.number).length < lastGuess.count) {
             // don't make stupid call
             return "call";
         } 
         else {
+            // make a naive guess if don't know what to do
             return {count:lastGuess.count+1,number:lastGuess.number};
         }
     }
