@@ -1,10 +1,10 @@
-# [DuelDigits](yangwangpku.github.io/DuelDigits/)
+# [DuelDigits](https://yangwangpku.github.io/DuelDigits/)
 
 ## Introduction
 Welcome to DuelDigits, a strategic two-player number guessing game implemented in JavaScript. The game challenges players to outwit their opponent by making increasingly aggressive guesses or strategically challenging the opponent's guess. It's all about strategy, probability, and a bit of luck!
 
 ## How to Play
-Simply click on [this link](yangwangpku.github.io/DuelDigits/) and dive into the game. The intuitive interface will guide you through the gameplay.
+Simply click on [this link](https://yangwangpku.github.io/DuelDigits/) and dive into the game. The intuitive interface will guide you through the gameplay.
 
 ## Features
 - **Two-Player Game**: Compete against the computer or a friend in a battle of wits and numbers.
