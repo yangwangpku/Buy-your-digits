@@ -42,7 +42,7 @@ function init(OPPONENT,LEVEL="easy"){
 
     function drawNumbers(numbers,position) {
         // position: top or bottom
-        for(let i=0; i< numbers.length; i++) {
+        for(let i=0; i< 5; i++) {
             let number = document.getElementById(`${i} ${position}`);
             if(i>=numbers.length){
                 if(number)  number.style.display = "none";  // hide the lost digits
@@ -121,12 +121,26 @@ function init(OPPONENT,LEVEL="easy"){
     })
 
     guessSection.addEventListener('click', function(event){
+        // make guess
         const clickedElement = event.target;
         if(!clickedElement.classList.contains("guesstile")) return;
 
         const guess = JSON.parse(clickedElement.dataset.guess);
         if(!validGuess(guess))  return;
         lastGuess = guess;
+        drawGuessBTNs();
+        
+        if(OPPONENT=="computer") {
+
+            let computerAction = computerEasyAction();
+            if(computerAction == "call") {
+                drawNumbers(oppSequence,"top");
+                showGameOver(correctGuess(lastGuess)?   "man":OPPONENT);
+            }
+            else {
+                lastGuess = computerAction;
+            }
+        }
 
         drawGuessBTNs();
     })
@@ -150,5 +164,30 @@ function init(OPPONENT,LEVEL="easy"){
         `;
 
         gameOverElement.classList.remove("hide");
+    }
+
+
+    function computerEasyAction() {
+        const possibleGuess = [];
+
+        for(let i=1; i<=manDigits+oppDigits; i++) {
+            for(let j=1; j<=4; j++) {
+                let guess = {count:i, number:j};
+                if(!validGuess(guess))  continue;
+                estimateCount = oppSequence.filter(num=>num==j).length+manDigits/4;
+                if(i<=estimateCount)
+                    possibleGuess.push(guess);
+            }
+        }
+    
+        if (possibleGuess.length == 0) {
+            return "call";
+        }
+        else {
+            let randomIndex = getRandomNumber(0,possibleGuess.length-1);
+            
+            return possibleGuess[randomIndex];
+        }
+
     }
 }
