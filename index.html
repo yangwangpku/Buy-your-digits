@@ -9,7 +9,7 @@
 </head>
 <body>
     <div class="container">
-        <canvas id="cvs" width="600" height="450"></canvas>
+        <!-- <canvas id="cvs" width="600" height="450"></canvas> -->
         <div class="options">
             <h1>Buy your digits</h1>
             
@@ -28,9 +28,28 @@
 
             <div class="play">PLAY</div>
         </div>
+
+
+        <div class="gamestart hide">
+            <img class="opponent" src="img/player2.svg" alt="opponent">
+            <img class="man" src="img/player1.svg" alt="man">
+            <div class="nextround hide">Next Round</div>
+            <div class="guess"> 
+                <div class="guesstext">
+                    
+                    <h3>Guess: <span id="guesscount">1</span> </h3>
+                    <div class="number" style="left:300px; width:40px; height:40px; font-size: 1.2em;">
+                        <span id="guessnumber">1</span>
+                    </div>
+                    <h3>(s) </h3>
+                </div>
+            </div>
+            
+        </div>
         <div class="gameover hide"></div>
     </div>
 
+    <script src="utils.js"></script>
     <script src="options.js"></script>
     <script src="game.js"></script>
 </body>

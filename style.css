@@ -22,6 +22,7 @@
     display: block;
     margin: 25px auto;
     position: relative;
+    border: 1px solid #000;
 }
 
 #cvs{
@@ -114,6 +115,100 @@
 
 .hide{
     display: none;
+}
+
+.gamestart{
+    position: absolute;
+    width: var(--container-width);
+    height: var(--container-height);
+}
+
+
+.opponent{
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    top: 0;
+    left: 150px;
+}
+.man{
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    bottom: 0;
+    left: 150px;
+}
+
+.nextround{
+    position: absolute;
+    right: 100px;
+    top: 300px;
+
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 1.5em;
+    width: 150px;
+    border-radius: 5px;
+    border: 1px solid #011627;
+    text-align: center;
+    background-color: green;
+    color: white;
+    cursor: pointer;
+    transition: 100ms width ease-in;
+}
+
+.number{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+
+    background-color: #FFF;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 1.5em;
+    border: 1px solid #000;
+    border-radius: 5px;
+    width: 50px;
+    height: 50px;
+}
+
+.guesstile{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+
+    background-color: #FFF;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 1.5em;
+    border: 1px solid #000;
+    border-radius: 5px;
+    width: 50px;
+    height: 50px;
+}
+
+.guess{
+    position: absolute;
+    width: var(--container-width);
+    height: var(--container-height);
+}
+
+.guesstext{
+    font-family: "Roboto";
+    display: flex;
+    width: var(--container-width);
+    height: var(--container-height);
+    text-align: center;
+    margin-top: 100px;
+}
+
+.guesstext h3:first-child{
+    margin-top: 8px;
+    margin-left: 200px;
+}
+
+.guesstext h3:last-child{
+    margin-top: 8px;
+    margin-left: 70px;
 }
 
 .gameover{
