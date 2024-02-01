@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Buy your digits - JavaScript</title>
+    <title>DuelDigits - JavaScript</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <!-- <canvas id="cvs" width="600" height="450"></canvas> -->
         <div class="options">
-            <h1>Buy your digits</h1>
+            <h1>DuelDigits</h1>
             
 
             <div id="player" class="section">
@@ -33,9 +33,9 @@
         <div class="gamestart hide">
             <img class="opponent" src="img/player2.svg" alt="opponent">
             <img class="man" src="img/player1.svg" alt="man">
+
             <div class="guess"> 
                 <div class="guesstext">
-                    
                     <h3>Guess: <span id="guesscount">1</span> </h3>
                     <div class="number" style="left:300px; width:40px; height:40px; font-size: 1.2em;">
                         <span id="guessnumber">1</span>
@@ -53,12 +53,64 @@
             <div class="viewopp hide">View</div>
             <div class="nextround hide">Next Round</div>
             
+            <div class="prompt"> Make a guess below or click the Call button to challenge the last guess! </div>
         </div>
         <div class="gameover hide"></div>
+
     </div>
 
     <script src="utils.js"></script>
     <script src="options.js"></script>
     <script src="game.js"></script>
+
+    <div class="description">
+        <h2>
+            Game Objective
+        </h2>
+        <ol>
+            The aim is to correctly guess the total occurrences of a specific digit (1-4) present in both players' hands.
+        </ol>
+        <h2>
+            Setup
+        </h2>
+        <ol>
+            <li>Each player starts with a random sequence of 5 digits ranging from 1-4.</li>
+            <li>Players take turns to make a guess or challenge the opponent's previous guess.</li>
+        </ol>
+        <h2>
+            Gameplay
+        </h2>
+        <ol>
+            <li>
+                <strong>Making a Guess:</strong>
+                <p>On your turn, you can guess the total occurrences of a specific digit. Your guess must be more aggressive than the previous one. (e.g., after a guess of (3 3s), valid guesses include (3 4s), (5 1s), or (6 2s), but not (3 2s) or (2 4s)).</p>
+            </li>
+            <li>
+                <strong>Challenging a Guess:</strong>
+                <p>Instead of guessing, you can challenge the opponent's last guess. A challenge ends the round and all digits are revealed.</p>
+            </li>
+        </ol>
+        <h2>
+            Determining the Round Winner
+        </h2>
+        <ol>
+            <li>If the guess is correct or underestimated, the challenger loses the round.</li>
+            <li>If the guess is overestimated, the guesser loses the round.</li>
+        </ol>
+        <h2>
+            Post-Round
+        </h2>
+        <ol>
+            <li>The round loser loses one digit.</li>
+            <li>A new round begins with the remaining digits.</li>
+            <li>The loser starts the next round.</li>
+        </ol>
+        <h2>
+            Winning the Game
+        </h2>
+        <ol>
+            The game continues until one player loses all their digits. The player who still has digits remaining is the winner.
+        </ol>
+    </div>
 </body>
 </html>

@@ -13,6 +13,7 @@ function init(OPPONENT,LEVEL="easy"){
     const viewopp = document.querySelector(".viewopp");
     const manturn = document.querySelector(".manturn");
     const oppturn = document.querySelector(".oppturn");
+    const prompt = document.querySelector(".prompt");
 
     opponent.src = OPPONENT == "computer"?    "img/computer.svg":"img/player2.svg";
     gamestart.classList.remove("hide");
@@ -24,6 +25,7 @@ function init(OPPONENT,LEVEL="easy"){
 
     const tileWidth = 50;
     const UNKNOWN = 0;
+    let tileColor="#ffffe0";
 
     let man={name:"man",digits:5,imgSrc:"img/player1.svg"};
     let opp={name:OPPONENT,digits:5,imgSrc:opponent.src};
@@ -132,13 +134,17 @@ function init(OPPONENT,LEVEL="easy"){
                 }
 
                 // change the color to yellow if it's the last guess
-                guesstile.style.backgroundColor = (lastGuess && i <= lastGuess.count && j == lastGuess.number)? "yellow":"white";
+                guesstile.style.backgroundColor = (lastGuess && i <= lastGuess.count && j == lastGuess.number)? "yellow":tileColor;
             }
         }
     }
 
 
     guessSection.addEventListener('mouseover', function(event){
+        if(!nextround.classList.contains("hide")) {
+            // the round has been over!
+            return;
+        }
         const hoveredElement = event.target;
         if(hoveredElement.classList.contains("guesstile")) {
             const guess = JSON.parse(hoveredElement.dataset.guess);
@@ -164,12 +170,17 @@ function init(OPPONENT,LEVEL="easy"){
             const guess = JSON.parse(outElement.dataset.guess);
             for(let i=1; i<=guess.count;i++) {
                 let guesstile = document.getElementById(`${i} ${guess.number}`);
-                guesstile.style.backgroundColor = (lastGuess && i <= lastGuess.count && guess.number == lastGuess.number)? "yellow":"white";
+                guesstile.style.backgroundColor = (lastGuess && i <= lastGuess.count && guess.number == lastGuess.number)? "yellow":tileColor;
             }
         }
     })
 
     guessSection.addEventListener('click', function(event){
+        prompt.classList.add("hide");   // prompt is not needed for old players
+        if(!nextround.classList.contains("hide")) {
+            // the round has been over!
+            return;
+        }
         // make guess
         const clickedElement = event.target;
         if(!clickedElement.classList.contains("guesstile")) return;
@@ -207,6 +218,11 @@ function init(OPPONENT,LEVEL="easy"){
     })
 
     call.addEventListener('click',function(event){
+        prompt.classList.add("hide");   // prompt is not needed for old players
+        if(!nextround.classList.contains("hide")) {
+            // the round has been over!
+            return;
+        }
         if(!lastGuess)  return;
         drawNumbers(opp.sequence,"top");
         drawNumbers(man.sequence,"bottom");
