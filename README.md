@@ -1,1 +1,1 @@
-Try it：https://yangwangpku.github.io/buy-your-digits/
+**[Try it](https://yangwangpku.github.io/buy-your-digits/)**
