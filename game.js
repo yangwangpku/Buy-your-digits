@@ -6,6 +6,8 @@ function init(OPPONENT,LEVEL="easy"){
     const guesstext = document.querySelector(".guesstext");
     const guesscount = document.getElementById("guesscount");
     const guessnumber = document.getElementById("guessnumber");
+    const call = document.querySelector(".call");
+    const gameOverElement = document.querySelector(".gameover");
 
     opponent.src = OPPONENT == "computer"?    "img/computer.svg":"img/player2.svg";
     gamestart.classList.remove("hide");
@@ -13,27 +15,11 @@ function init(OPPONENT,LEVEL="easy"){
     const tileWidth = 50;
     const UNKNOWN = 0;
 
-    function drawNumbers(numbers,position) {
-        // position: top or bottom
-        for(let i=0; i< numbers.length; i++) {
-            const number = document.createElement("div");
-            number.classList.add("number");
-            number.innerHTML = (numbers[i]==UNKNOWN)?   "?" : numbers[i];
-            if(position == "top")
-                number.style.top = 0;
-            else
-                number.style.bottom = 0;
-            number.style.left = (5+i)*tileWidth + "px";
-            gamestart.appendChild(number);
-        }
-    }
-
     // game state
     let manDigits = 5;
     let oppDigits = 5;
 
     let lastGuess = null;
-    lastGuess = {count:3, number:2};
 
     let manSequence = getRandomNumberSequence(manDigits,4);
     let oppSequence = getRandomNumberSequence(oppDigits,4);
@@ -47,6 +33,36 @@ function init(OPPONENT,LEVEL="easy"){
         if(!lastGuess)  return true;
         if(guess.count != lastGuess.count)  return guess.count > lastGuess.count;
         return guess.number > lastGuess.number;
+    }
+
+    function correctGuess(guess) {
+        let total = manSequence.filter(num=>num==guess.number).length + oppSequence.filter(num=>num==guess.number).length
+        return guess.count <= total;
+    }
+
+    function drawNumbers(numbers,position) {
+        // position: top or bottom
+        for(let i=0; i< numbers.length; i++) {
+            let number = document.getElementById(`${i} ${position}`);
+            if(i>=numbers.length){
+                if(number)  number.style.display = "none";  // hide the lost digits
+                continue;
+            }
+
+            if(!number) {
+                number = document.createElement("div");
+                number.id = `${i} ${position}`;
+                number.classList.add("number");
+                if(position == "top")
+                    number.style.top = 0;
+                else
+                    number.style.bottom = 0;
+                number.style.left = (5+i)*tileWidth + "px";
+                gamestart.appendChild(number);
+            }
+            number.innerHTML = (numbers[i]==UNKNOWN)?   "?" : numbers[i];
+            
+        }
     }
 
     function drawGuessBTNs() {
@@ -113,6 +129,26 @@ function init(OPPONENT,LEVEL="easy"){
         lastGuess = guess;
 
         drawGuessBTNs();
-
     })
+
+    call.addEventListener('click',function(event){
+        if(!lastGuess)  return;
+        drawNumbers(oppSequence,"top");
+        showGameOver(correctGuess(lastGuess)?   OPPONENT:"man");
+    })
+
+    function showGameOver(winner){
+        let message = "The Winner is";
+        let imgSrc = winner == "man"?     "img/player1.svg":
+                     winner == "friend"?  "img/player2.svg":
+                                          "img/computer.svg";
+
+        gameOverElement.innerHTML = `
+            <h1>${message}</1>
+            <img class="winner-img " src=${imgSrc} </img>
+            <div class="play" onclick="location.reload()">Play Again!</div>
+        `;
+
+        gameOverElement.classList.remove("hide");
+    }
 }

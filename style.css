@@ -184,6 +184,7 @@
     border-radius: 5px;
     width: 50px;
     height: 50px;
+    cursor: pointer;
 }
 
 .guess{
@@ -212,11 +213,31 @@
     margin-left: 70px;
 }
 
+.call {
+    position: absolute;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 1.5em;
+    width: 70px;
+    display: block;
+    border-radius: 5px;
+    border: 1px solid #011627;
+    text-align: center;
+    padding: 10px;
+    background-color: red;
+    color: #FFF;
+    cursor: pointer;
+
+    left: 0;
+    bottom: 0;
+}
+
 .gameover{
     position: absolute;
     width: 450px;
-    height: 450px;
-    background-color: rgba(0, 0, 0, 0.95);
+    height: 300px;
+    background-color: green;
+    top: 70px;
+    left: 75px
 }
 .gameover h1{
     text-align: center;
@@ -229,23 +250,21 @@
 .gameover .winner-img{
     display: block;
     margin: 20px auto;
+    width: 70px;
+    height: 70px;
 }
 
 .gameover .play{
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-    font-size: 1.5em;
-    width: 150px;
+    font-size: 0.5em;
+    width: 200px;
     display: block;
     margin: 25px auto;
     border-radius: 5px;
     border: 1px solid #fff;
     text-align: center;
     padding: 10px;
-    background-color: #fff;
-    color: #000;
+    background-color: red;
+    color: white;
     cursor: pointer;
-    transition: 100ms width ease-in;
-}
-.gameover .play:hover{
-    width: 200px;
 }
