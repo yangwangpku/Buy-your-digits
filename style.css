@@ -141,19 +141,19 @@
 
 .nextround{
     position: absolute;
-    right: 100px;
-    top: 300px;
-
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-    font-size: 1.5em;
+    font-size: 1.2em;
     width: 150px;
     border-radius: 5px;
     border: 1px solid #011627;
     text-align: center;
+    padding: 10px;
     background-color: green;
-    color: white;
+    color: #FFF;
     cursor: pointer;
-    transition: 100ms width ease-in;
+
+    right: 30px;
+    top: 70px;
 }
 
 .number{
@@ -203,15 +203,11 @@
     margin-top: 100px;
 }
 
-.guesstext h3:first-child{
+.guesstext h3{
     margin-top: 8px;
     margin-left: 200px;
 }
 
-.guesstext h3:last-child{
-    margin-top: 8px;
-    margin-left: 70px;
-}
 
 .call {
     position: absolute;
@@ -229,6 +225,56 @@
 
     left: 0;
     bottom: 0;
+}
+
+.viewman {
+    position: absolute;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 1em;
+    width: 50px;
+    border-radius: 5px;
+    border: 1px solid #011627;
+    text-align: center;
+    padding: 6px;
+    background-color: grey;
+    color: #FFF;
+    cursor: pointer;
+
+    right: 20px;
+    bottom: 10px;    
+}
+
+.viewopp {
+    position: absolute;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 1em;
+    width: 50px;
+    border-radius: 5px;
+    border: 1px solid #011627;
+    text-align: center;
+    padding: 6px;
+    background-color: grey;
+    color: #FFF;
+    cursor: pointer;
+
+    right: 20px;
+    top: 10px;    
+}
+
+.manturn{
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    bottom: 10px;
+    left: 120px;
+}
+
+.oppturn{
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    top: 10px;
+    left: 120px;
 }
 
 .gameover{

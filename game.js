@@ -7,26 +7,72 @@ function init(OPPONENT,LEVEL="easy"){
     const guesscount = document.getElementById("guesscount");
     const guessnumber = document.getElementById("guessnumber");
     const call = document.querySelector(".call");
+    const nextround = document.querySelector(".nextround");
     const gameOverElement = document.querySelector(".gameover");
+    const viewman = document.querySelector(".viewman");
+    const viewopp = document.querySelector(".viewopp");
+    const manturn = document.querySelector(".manturn");
+    const oppturn = document.querySelector(".oppturn");
 
     opponent.src = OPPONENT == "computer"?    "img/computer.svg":"img/player2.svg";
     gamestart.classList.remove("hide");
 
+    if(OPPONENT == "friend") {
+        viewman.classList.remove("hide");
+        viewopp.classList.remove("hide");
+    }
+
     const tileWidth = 50;
     const UNKNOWN = 0;
 
-    // game state
-    let manDigits = 5;
-    let oppDigits = 5;
+    let man={name:"man",digits:5,imgSrc:"/img/player1.svg"};
+    let opp={name:OPPONENT,digits:5,imgSrc:opponent.src};
+    let currentPlayer = man;
 
     let lastGuess = null;
+    let lastLoser = man;
 
-    let manSequence = getRandomNumberSequence(manDigits,4);
-    let oppSequence = getRandomNumberSequence(oppDigits,4);
 
-    drawNumbers(manSequence,"bottom");
-    drawNumbers(new Array(oppDigits).fill(UNKNOWN),"top");
-    drawGuessBTNs();
+    newRound();
+
+    function switchTurn(activePlayer = null) {
+        if(activePlayer == null)    activePlayer = (currentPlayer==man)?  opp:man;
+
+        if(activePlayer == man) {
+            manturn.classList.remove("hide");
+            oppturn.classList.add("hide");
+        }
+        else {
+            manturn.classList.add("hide");
+            oppturn.classList.remove("hide");            
+        }
+        currentPlayer = activePlayer;
+    }
+
+    function newRound() {
+        viewman.innerHTML="View";
+        viewopp.innerHTML="View";
+        lastGuess = null;
+
+        switchTurn(lastLoser);
+        man.sequence = getRandomNumberSequence(man.digits,4);
+        opp.sequence = getRandomNumberSequence(opp.digits,4);
+
+        if(OPPONENT=="friend")
+            drawNumbers(new Array(man.digits).fill(UNKNOWN),"bottom");
+        else
+            drawNumbers(man.sequence,"bottom");
+        drawNumbers(new Array(opp.digits).fill(UNKNOWN),"top");
+        drawGuessBTNs();
+
+        if(currentPlayer.name=="computer") {
+            // computer makes the first move
+            let computerAction = computerEasyAction();
+            lastGuess = computerAction;
+            drawGuessBTNs();
+            switchTurn();
+        }
+    }
 
 
     function validGuess(guess) {
@@ -36,13 +82,13 @@ function init(OPPONENT,LEVEL="easy"){
     }
 
     function correctGuess(guess) {
-        let total = manSequence.filter(num=>num==guess.number).length + oppSequence.filter(num=>num==guess.number).length
+        let total = man.sequence.filter(num=>num==guess.number).length + opp.sequence.filter(num=>num==guess.number).length
         return guess.count <= total;
     }
 
     function drawNumbers(numbers,position) {
         // position: top or bottom
-        for(let i=0; i< 5; i++) {
+        for(let i=0; i<5; i++) {
             let number = document.getElementById(`${i} ${position}`);
             if(i>=numbers.length){
                 if(number)  number.style.display = "none";  // hide the lost digits
@@ -61,15 +107,18 @@ function init(OPPONENT,LEVEL="easy"){
                 gamestart.appendChild(number);
             }
             number.innerHTML = (numbers[i]==UNKNOWN)?   "?" : numbers[i];
-            
         }
     }
 
     function drawGuessBTNs() {
-        for(let i=1; i<=manDigits+oppDigits; i++) {
+        for(let i=1; i<=10; i++) {
             for(let j=1; j<=4; j++) {
                 let guesstile = document.getElementById(`${i} ${j}`);
-                
+                if(i > man.digits+opp.digits) {
+                    // hide illegal guess
+                    if(guesstile)
+                        guesstile.style.display = "none";
+                }
                 if(!guesstile) {
                     // draw the button for the first time
                     guesstile = document.createElement("div");
@@ -131,35 +180,84 @@ function init(OPPONENT,LEVEL="easy"){
         drawGuessBTNs();
         
         if(OPPONENT=="computer") {
-
             let computerAction = computerEasyAction();
             if(computerAction == "call") {
-                drawNumbers(oppSequence,"top");
-                showGameOver(correctGuess(lastGuess)?   "man":OPPONENT);
+                drawNumbers(opp.sequence,"top");
+                
+                let winner = correctGuess(lastGuess)?   man:opp;
+                let loser = correctGuess(lastGuess)?   opp:man;
+
+                if(loser.digits == 1)
+                    showGameOver(winner);
+                else {
+                    loser.digits--;
+                    lastLoser = loser;
+                    nextround.classList.remove("hide");
+                }
+                return;
             }
             else {
                 lastGuess = computerAction;
             }
         }
+        else
+            switchTurn();
 
         drawGuessBTNs();
     })
 
     call.addEventListener('click',function(event){
         if(!lastGuess)  return;
-        drawNumbers(oppSequence,"top");
-        showGameOver(correctGuess(lastGuess)?   OPPONENT:"man");
+        drawNumbers(opp.sequence,"top");
+        drawNumbers(man.sequence,"bottom");
+        
+        let otherPlayer = currentPlayer==man? opp:man;
+        let winner = correctGuess(lastGuess)?   otherPlayer:currentPlayer;
+        let loser = correctGuess(lastGuess)?   currentPlayer:otherPlayer;
+
+        if(loser.digits == 1)
+            showGameOver(winner);
+        else {
+            loser.digits--;
+            lastLoser = loser;
+            nextround.classList.remove("hide");
+        }
+
+    })
+
+    viewman.addEventListener('click',function(event){
+        if(viewman.innerHTML=="View") {
+            drawNumbers(man.sequence,"bottom");
+            viewman.innerHTML="Hide";
+        }
+        else {
+            drawNumbers(new Array(man.digits).fill(UNKNOWN),"bottom");
+            viewman.innerHTML="View";
+        }
+    })
+
+    viewopp.addEventListener('click',function(event){
+        if(viewopp.innerHTML=="View") {
+            drawNumbers(opp.sequence,"top");
+            viewopp.innerHTML="Hide";
+        }
+        else {
+            drawNumbers(new Array(opp.digits).fill(UNKNOWN),"top");
+            viewopp.innerHTML="View";
+        }
+    })
+
+    nextround.addEventListener('click',function(event){
+        nextround.classList.add("hide");
+        newRound();
     })
 
     function showGameOver(winner){
         let message = "The Winner is";
-        let imgSrc = winner == "man"?     "img/player1.svg":
-                     winner == "friend"?  "img/player2.svg":
-                                          "img/computer.svg";
 
         gameOverElement.innerHTML = `
             <h1>${message}</1>
-            <img class="winner-img " src=${imgSrc} </img>
+            <img class="winner-img " src=${winner.imgSrc} </img>
             <div class="play" onclick="location.reload()">Play Again!</div>
         `;
 
@@ -168,26 +266,29 @@ function init(OPPONENT,LEVEL="easy"){
 
 
     function computerEasyAction() {
-        const possibleGuess = [];
+        const safeGuess = [];
 
-        for(let i=1; i<=manDigits+oppDigits; i++) {
+        for(let i=1; i<=man.digits+opp.digits; i++) {
             for(let j=1; j<=4; j++) {
                 let guess = {count:i, number:j};
                 if(!validGuess(guess))  continue;
-                estimateCount = oppSequence.filter(num=>num==j).length+manDigits/4;
+                estimateCount = opp.sequence.filter(num=>num==j).length+(man.digits+1)/4;
                 if(i<=estimateCount)
-                    possibleGuess.push(guess);
+                    safeGuess.push(guess);
             }
         }
-    
-        if (possibleGuess.length == 0) {
-            return "call";
-        }
-        else {
-            let randomIndex = getRandomNumber(0,possibleGuess.length-1);
-            
-            return possibleGuess[randomIndex];
-        }
 
+        if (safeGuess.length > 0) {
+            let randomIndex = getRandomNumber(0,safeGuess.length-1);
+            return safeGuess[randomIndex];
+        } 
+        else if (opp.sequence.filter(num=>num==lastGuess.number).length < lastGuess.count) {
+            // don't make stupid call
+            return "call";
+        } 
+        else {
+            return {count:lastGuess.count+1,number:lastGuess.number};
+        }
     }
+
 }
