@@ -25,7 +25,7 @@ function init(OPPONENT,LEVEL="easy"){
     const tileWidth = 50;
     const UNKNOWN = 0;
 
-    let man={name:"man",digits:5,imgSrc:"/img/player1.svg"};
+    let man={name:"man",digits:5,imgSrc:"img/player1.svg"};
     let opp={name:OPPONENT,digits:5,imgSrc:opponent.src};
     let currentPlayer = man;
 
