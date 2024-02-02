@@ -6,12 +6,6 @@ Welcome to DuelDigits, a strategic two-player number guessing game implemented i
 ## How to Play
 Simply click on [this link](https://yangwangpku.github.io/DuelDigits/) and dive into the game. The intuitive interface will guide you through the gameplay.
 
-## Features
-- **Two-Player Game**: Compete against the computer or a friend in a battle of wits and numbers.
-- **Strategic Gameplay**: Make your moves wisely - every guess and challenge can turn the tide of the game.
-- **Simple and Intuitive**: No installation required, just click the link and start playing!
-- **Implemented in JavaScript**: Built with modern web technologies for a seamless gaming experience.
-
 ## Rules of the Game
 1. Each player starts with a random sequence of 5 digits ranging from 1-4.
 2. Players take turns to either make a guess or challenge the opponent's last guess.
