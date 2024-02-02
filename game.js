@@ -14,6 +14,8 @@ function init(OPPONENT,LEVEL="easy"){
     const manturn = document.querySelector(".manturn");
     const oppturn = document.querySelector(".oppturn");
     const prompt = document.querySelector(".prompt");
+    const manbubble = document.querySelector(".manbubble");
+    const oppbubble = document.querySelector(".oppbubble");
 
     opponent.src = OPPONENT == "computer"?    "img/computer.svg":"img/player2.svg";
     gamestart.classList.remove("hide");
@@ -51,9 +53,18 @@ function init(OPPONENT,LEVEL="easy"){
         currentPlayer = activePlayer;
     }
 
+    function speak(player,message) {
+        const bubble = (player==man)?   manbubble:oppbubble;
+        bubble.style.display="flex";
+        const bubbletext = bubble.querySelector(".bubbletext");
+        bubbletext.innerHTML = message;
+    }
+
     function newRound() {
         viewman.innerHTML="View";
         viewopp.innerHTML="View";
+        manbubble.style.display="none";
+        oppbubble.style.display="none";
         lastGuess = null;
 
         switchTurn(lastLoser);
@@ -70,6 +81,7 @@ function init(OPPONENT,LEVEL="easy"){
         if(currentPlayer.name=="computer") {
             // computer makes the first move
             let computerAction = computerEasyAction();
+            speak(currentPlayer,`${computerAction.count} ${computerAction.number}(s)`);
             lastGuess = computerAction;
             drawGuessBTNs();
             switchTurn();
@@ -187,12 +199,15 @@ function init(OPPONENT,LEVEL="easy"){
 
         const guess = JSON.parse(clickedElement.dataset.guess);
         if(!validGuess(guess))  return;
+        speak(currentPlayer,`${guess.count} ${guess.number}(s)`);
         lastGuess = guess;
+        switchTurn();
         drawGuessBTNs();
         
         if(OPPONENT=="computer") {
             let computerAction = computerEasyAction();
             if(computerAction == "call") {
+                speak(currentPlayer,"Call");
                 drawNumbers(opp.sequence,"top");
                 
                 let winner = correctGuess(lastGuess)?   man:opp;
@@ -208,11 +223,11 @@ function init(OPPONENT,LEVEL="easy"){
                 return;
             }
             else {
+                speak(currentPlayer,`${computerAction.count} ${computerAction.number}(s)`);
                 lastGuess = computerAction;
+                switchTurn();
             }
         }
-        else
-            switchTurn();
 
         drawGuessBTNs();
     })
@@ -224,6 +239,7 @@ function init(OPPONENT,LEVEL="easy"){
             return;
         }
         if(!lastGuess)  return;
+        speak(currentPlayer,"Call");
         drawNumbers(opp.sequence,"top");
         drawNumbers(man.sequence,"bottom");
         
@@ -283,14 +299,18 @@ function init(OPPONENT,LEVEL="easy"){
 
     function computerEasyAction() {
         const safeGuess = [];
+        const dangerGuess = [];
 
         for(let i=1; i<=man.digits+opp.digits; i++) {
             for(let j=1; j<=4; j++) {
                 let guess = {count:i, number:j};
                 if(!validGuess(guess))  continue;
-                estimateCount = opp.sequence.filter(num=>num==j).length+(man.digits+1)/4;
-                if(i<=estimateCount)
+                estimateCountLow = opp.sequence.filter(num=>num==j).length+(man.digits+1)/4;
+                estimateCountHigh = opp.sequence.filter(num=>num==j).length+man.digits/4+1;
+                if(i<=estimateCountLow)
                     safeGuess.push(guess);
+                if(i<=estimateCountHigh)
+                    dangerGuess.push(guess);
             }
         }
 
@@ -303,6 +323,16 @@ function init(OPPONENT,LEVEL="easy"){
             }
             else
                 return safeGuess[randomIndex];
+        }
+        else if (dangerGuess.length > 0) {
+            let randomIndex = getRandomNumber(0,dangerGuess.length-1);
+            let guess = dangerGuess[randomIndex];
+            if(lastGuess && guess.number != lastGuess.number && guess.count + lastGuess.count > man.digits+opp.digits) {
+                // don't make stupid guess
+                return "call";
+            }
+            else
+                return dangerGuess[randomIndex];
         } 
         else if (opp.sequence.filter(num=>num==lastGuess.number).length < lastGuess.count) {
             // don't make stupid call

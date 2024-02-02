@@ -20,6 +20,14 @@ body {
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
   }
 
+.invitation {
+    text-align: center;
+    width: var(--container-width);
+    color: rgb(128,0,0);
+    margin: 25px auto;
+    font-size: bold;
+}
+
 .container{
     width: var(--container-width);
     height: var(--container-height);
@@ -225,6 +233,46 @@ body {
     margin-left: 200px;
 }
 
+.bubble {
+    width: 70px;
+    height: 50px;
+}
+
+.manbubble {
+    display: flex;
+    position: absolute;
+    width: 70px;
+    height: 50px;
+    left: 80px;
+    bottom: 40px;
+}
+
+.oppbubble {
+    display: flex;
+    position: absolute;
+    width: 70px;
+    height: 50px;
+    left: 80px;
+    top:  40px;
+}
+
+.oppbubble .bubble{
+    transform: scaleY(-1);
+}
+
+.bubbletext {
+    position: absolute;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 1em;
+    width: 70px;
+    margin-top: 10px;
+    text-align: center;
+    color: brown;
+}
+
+.oppbubble .bubbletext{
+    margin-top: 20px;
+}
 
 .call {
     position: absolute;
