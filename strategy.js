@@ -1,5 +1,5 @@
 import { action } from './game.js';
-import { getRandomNumber,sample } from './utils.js';
+import { getRandomNumber,sample,fetchAndDecodeMsgpack } from './utils.js';
 
 
 export const HeuristicStrategy = game => {
@@ -63,31 +63,8 @@ export async function PretrainedStrategy(game) {
     let playerLength0 = game.playerLength0;
     let playerLength1 = game.playerLength1;
 
-    async function fetchAndDecodeMsgpack(filePath) {
-        try {
-            // Fetch the .msgpack file
-            const response = await fetch(filePath);
-            
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-
-            // Read the response as an array buffer
-            const arrayBuffer = await response.arrayBuffer();
-
-            // Decode the array buffer using msgpack
-            const decodedData = msgpack.decode(new Uint8Array(arrayBuffer),{int64: true});
-            
-            return decodedData;
-            // Handle the decoded data as needed
-        } catch (error) {
-            console.error("Error fetching or decoding msgpack file:", error);
-        }
-    }
-
     const strategy = await fetchAndDecodeMsgpack(`./strategy/${playerLength0}-${playerLength1}.msgpack`);
-    console.log("Strategy loaded from strategy.msgpack:", strategy);
+    console.log("Strategy loaded from strategy.msgpack:", `./strategy/${playerLength0}-${playerLength1}.msgpack`);
 
     const strategyInstance = strategy[game.Cstate()];
     if(!strategyInstance) {

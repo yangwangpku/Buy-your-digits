@@ -30,3 +30,27 @@ export function sample(probabilities) {
     // In case of floating-point precision issues, return the last index
     return normalizedProbabilities.length - 1;
 }
+
+
+export async function fetchAndDecodeMsgpack(filePath) {
+    try {
+        // Fetch the .msgpack file
+        const response = await fetch(filePath);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+
+        // Read the response as an array buffer
+        const arrayBuffer = await response.arrayBuffer();
+
+        // Decode the array buffer using msgpack
+        const decodedData = msgpack.decode(new Uint8Array(arrayBuffer),{int64: true});
+        
+        return decodedData;
+        // Handle the decoded data as needed
+    } catch (error) {
+        console.error("Error fetching or decoding msgpack file:", error);
+    }
+}

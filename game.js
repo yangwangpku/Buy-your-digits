@@ -83,7 +83,12 @@ export const createGame = (playerLength0, playerLength1) => {   // player0 moves
         }        
 
         let CHistory = 0
-        for (let i = 0; i < history.length; i++) {
+
+        // only keep the last 4 actions
+        let startIdx = Math.max(0,history.length-4)
+        if(startIdx % 2 === 1) startIdx ++
+
+        for (let i = startIdx; i < history.length; i++) {
             CHistory = ((CHistory << ACTION_BITS) | CAction(history[i])) & 0x3FFFFFFF;
         }
 
