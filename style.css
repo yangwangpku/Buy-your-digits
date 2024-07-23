@@ -218,6 +218,15 @@ body {
     height: var(--container-height);
 }
 
+.history{
+    position: absolute;
+    width: 140px;
+    height: var(--container-height);
+    margin-left: calc(var(--container-width) + 1px);
+    text-align: center;
+    /* background-color: white; */
+}
+
 .guesstext{
     font-family: "Roboto";
     color: blue;
@@ -238,7 +247,7 @@ body {
     height: 50px;
 }
 
-.manbubble {
+.northBubble {
     display: flex;
     position: absolute;
     width: 70px;
@@ -247,7 +256,7 @@ body {
     bottom: 40px;
 }
 
-.oppbubble {
+.southBubble {
     display: flex;
     position: absolute;
     width: 70px;
@@ -256,7 +265,7 @@ body {
     top:  40px;
 }
 
-.oppbubble .bubble{
+.southBubble .bubble{
     transform: scaleY(-1);
 }
 
@@ -270,7 +279,7 @@ body {
     color: brown;
 }
 
-.oppbubble .bubbletext{
+.southBubble .bubbletext{
     margin-top: 20px;
 }
 
@@ -292,7 +301,7 @@ body {
     bottom: 0;
 }
 
-.viewman {
+.northView {
     position: absolute;
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     font-size: 1em;
@@ -309,7 +318,7 @@ body {
     bottom: 10px;    
 }
 
-.viewopp {
+.southView {
     position: absolute;
     font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
     font-size: 1em;
@@ -326,7 +335,7 @@ body {
     top: 10px;    
 }
 
-.manturn{
+.southTurn{
     width: 30px;
     height: 30px;
     position: absolute;
@@ -334,7 +343,7 @@ body {
     left: 120px;
 }
 
-.oppturn{
+.northTurn{
     width: 30px;
     height: 30px;
     position: absolute;

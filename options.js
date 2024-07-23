@@ -1,3 +1,5 @@
+import { init } from "./gameloop.js";
+
 // SELECT START ELEMENT
 const options = document.querySelector(".options");
 

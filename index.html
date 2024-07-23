@@ -40,30 +40,35 @@
 
             <div class="guess"> 
                 <div class="guesstext">
-                    <h3>Guess: <span id="guesscount">1</span> </h3>
+                    <h3>Guess: <span id="guessnumber">1</span> </h3>
                     <div class="number" style="left:300px; width:40px; height:40px; font-size: 1.2em;">
-                        <span id="guessnumber">1</span>
+                        <span id="guessdigit">1</span>
                     </div>
 
                 </div>
             </div>
 
-            <div class="call">Call</div>
-
-            <img class="manturn" src="img/turn.svg" alt="manturn">
-            <img class="oppturn" src="img/turn.svg" alt="oppturn">
-
-            <div class="viewman hide">View</div>
-            <div class="viewopp hide">View</div>
-            
-            <div class="manbubble">
-                <img class="bubble" src="img/bubble.svg", alt="speech bubble">
-                <div class="bubbletext" id="manbubbletext"></div>
+            <div class="history"> 
+                <h3>History</h3>
+                <p id="historytext"> 1-1 </p>
             </div>
 
-            <div class="oppbubble">
+            <div class="call">Call</div>
+
+            <img class="southTurn" src="img/turn.svg" alt="southTurn">
+            <img class="northTurn" src="img/turn.svg" alt="northTurn">
+
+            <div class="northView hide">View</div>
+            <div class="southView hide">View</div>
+            
+            <div class="northBubble">
                 <img class="bubble" src="img/bubble.svg", alt="speech bubble">
-                <div class="bubbletext" id="oppbubbletext"></div>
+                <div class="bubbletext" id="northBubbletext"></div>
+            </div>
+
+            <div class="southBubble">
+                <img class="bubble" src="img/bubble.svg", alt="speech bubble">
+                <div class="bubbletext" id="southBubbletext"></div>
             </div>
 
             <div class="nextround hide">Next Round</div>
@@ -124,8 +129,10 @@
         </ol>
     </div>
 
-    <script src="utils.js"></script>
+    <script type="module" src="options.js"></script>
+    <!-- <script src="options.js"></script> -->
+    <!-- <script src="utils.js"></script>
     <script src="options.js"></script>
-    <script src="game.js"></script>
+    <script src="game.js"></script> -->
 </body>
 </html>
