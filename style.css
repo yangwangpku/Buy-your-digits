@@ -247,7 +247,7 @@ body {
     height: 50px;
 }
 
-.northBubble {
+.southBubble {
     display: flex;
     position: absolute;
     width: 70px;
@@ -256,7 +256,7 @@ body {
     bottom: 40px;
 }
 
-.southBubble {
+.northBubble {
     display: flex;
     position: absolute;
     width: 70px;
@@ -265,7 +265,7 @@ body {
     top:  40px;
 }
 
-.southBubble .bubble{
+.northBubble .bubble{
     transform: scaleY(-1);
 }
 
@@ -279,7 +279,7 @@ body {
     color: brown;
 }
 
-.southBubble .bubbletext{
+.northBubble .bubbletext{
     margin-top: 20px;
 }
 

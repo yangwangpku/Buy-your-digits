@@ -1,5 +1,6 @@
 import { action,createGame } from "./game.js";
 import { getRandomNumber } from "./utils.js";
+import { HeuristicStrategy, PretrainedStrategy } from "./strategy.js";
 
 export function init(OPPONENT,LEVEL="easy"){
 
@@ -17,8 +18,8 @@ export function init(OPPONENT,LEVEL="easy"){
     const southTurn = document.querySelector(".southTurn");
     const northTurn = document.querySelector(".northTurn");
     const prompt = document.querySelector(".prompt");
-    const northBubble = document.querySelector(".northBubble");
     const southBubble = document.querySelector(".southBubble");
+    const northBubble = document.querySelector(".northBubble");
 
     opponent.src = OPPONENT == "computer"?    "img/computer.svg":"img/player2.svg";
     gamestart.classList.remove("hide");
@@ -28,18 +29,23 @@ export function init(OPPONENT,LEVEL="easy"){
         southView.classList.remove("hide");
     }
 
+    let computerStrategy = (LEVEL == "easy")? HeuristicStrategy:PretrainedStrategy;
+
     const tileWidth = 50;
     const UNKNOWN = 0;
     let tileColor="#ffffe0";
 
-    let man={name:"man",digits:5,imgSrc:"img/player1.svg"};
-    let opp={name:OPPONENT,digits:5,imgSrc:opponent.src};
+    const southPlayerInitLength = 3;
+    const northPlayerInitLength = 3;
 
-    let lastLoser = man;
-    let player0 = man;
-    let player1 = opp;
+    let southPlayer={name:"man",digits:southPlayerInitLength,imgSrc:"img/player1.svg"};
+    let northPlayer={name:OPPONENT,digits:northPlayerInitLength,imgSrc:opponent.src};
 
-    let game = createGame(man.digits,opp.digits);
+    let lastLoser = southPlayer;
+    let player0 = southPlayer;
+    let player1 = northPlayer;
+
+    let game = createGame(southPlayer.digits,northPlayer.digits);
 
     const currentPlayer = () => {
         return (game.getCurrentPlayer() === 0)? player0:player1;
@@ -48,7 +54,7 @@ export function init(OPPONENT,LEVEL="easy"){
     newRound();
 
     function activatePlayer(player) {
-        if(player == man) {
+        if(player.name == southPlayer.name) {
             southTurn.classList.remove("hide");
             northTurn.classList.add("hide");
         }
@@ -60,34 +66,34 @@ export function init(OPPONENT,LEVEL="easy"){
 
 
     function speak(player,message) {
-        const bubble = (player==man)?   northBubble:southBubble;
+        const bubble = (player.name==southPlayer.name)?   southBubble:northBubble;
         bubble.style.display="flex";
         const bubbletext = bubble.querySelector(".bubbletext");
         bubbletext.innerHTML = message;
     }
 
-    function newRound() {
+    async function newRound() {
         northView.innerHTML="View";
         southView.innerHTML="View";
-        northBubble.style.display="none";
         southBubble.style.display="none";
+        northBubble.style.display="none";
 
         activatePlayer(lastLoser);
         player0 = lastLoser;
-        player1 = (lastLoser.name == "man")? opp:man;
+        player1 = (lastLoser.name == southPlayer.name)? northPlayer:southPlayer;
 
         game = createGame(player0.digits,player1.digits);
         
         if(OPPONENT=="friend")
-            drawNumbers(new Array(man.digits).fill(UNKNOWN),"bottom");
+            drawNumbers(new Array(southPlayer.digits).fill(UNKNOWN),"bottom");
         else
-            drawNumbers((player0.name == "man")? game.playerCards0:game.playerCards1,"bottom");
-        drawNumbers(new Array(opp.digits).fill(UNKNOWN),"top");
+            drawNumbers((player0.name == southPlayer.name)? game.playerCards0:game.playerCards1,"bottom");
+        drawNumbers(new Array(northPlayer.digits).fill(UNKNOWN),"top");
         drawGuessBTNs();
 
         if(player0.name=="computer") {
             // computer makes the first move
-            let computerAction = computerEasyAction();
+            const computerAction = await computerStrategy(game);
             speak(currentPlayer(),`${computerAction.number} ${computerAction.digit}(s)`);
             game.step(computerAction);
             drawGuessBTNs(computerAction);
@@ -100,12 +106,12 @@ export function init(OPPONENT,LEVEL="easy"){
         return game.validAction(guess);
     }
 
-    function manCards() {
-        return player0.name == "man"? game.playerCards0:game.playerCards1;
+    function southPlayerCards() {
+        return player0.name == southPlayer.name? game.playerCards0:game.playerCards1;
     }
 
-    function oppCards() {
-        return player0.name == "man"? game.playerCards1:game.playerCards0;
+    function northPlayerCards() {
+        return player0.name == southPlayer.name? game.playerCards1:game.playerCards0;
     }
 
     function drawNumbers(numbers,position) {
@@ -136,11 +142,7 @@ export function init(OPPONENT,LEVEL="easy"){
         for(let i=1; i<=10; i++) {
             for(let j=1; j<=4; j++) {
                 let guesstile = document.getElementById(`${i} ${j}`);
-                if(i > man.digits+opp.digits) {
-                    // hide illegal guess
-                    if(guesstile)
-                        guesstile.style.display = "none";
-                }
+
                 if(!guesstile) {
                     // draw the button for the first time
                     guesstile = document.createElement("div");
@@ -151,6 +153,11 @@ export function init(OPPONENT,LEVEL="easy"){
                     guesstile.style.top = (2+j)*tileWidth + "px";;
                     guesstile.style.left = (i)*tileWidth + "px";
                     guessSection.appendChild(guesstile);
+                }
+
+                if(i > southPlayer.digits+northPlayer.digits) {
+                    // hide illegal guess
+                    guesstile.style.display = "none";
                 }
 
                 // change the color to yellow if it's the last guess
@@ -202,7 +209,7 @@ export function init(OPPONENT,LEVEL="easy"){
         }
     })
 
-    guessSection.addEventListener('click', function(event){
+    guessSection.addEventListener('click', async function(event){
         prompt.classList.add("hide");   // prompt is not needed for old players
         if(!nextround.classList.contains("hide")) {
             // the round has been over!
@@ -221,11 +228,11 @@ export function init(OPPONENT,LEVEL="easy"){
         drawGuessBTNs(guess);
         
         if(OPPONENT=="computer") {
-            let computerAction = computerEasyAction();
+            const computerAction = await computerStrategy(game);
             if(computerAction == "call") {
                 speak(currentPlayer(),"Call");
                 game.step({number:0,digit:0});
-                drawNumbers(oppCards(),"top");
+                drawNumbers(northPlayerCards(),"top");
 
                 let gamewinner = game.winner();
                 let winner = (gamewinner == 0)? player0:player1;
@@ -259,8 +266,8 @@ export function init(OPPONENT,LEVEL="easy"){
         if(!game.lastAction())  return;
         speak(currentPlayer(),"Call");
         game.step({number:0,digit:0});
-        drawNumbers(oppCards(),"top");
-        drawNumbers(manCards(),"bottom");
+        drawNumbers(northPlayerCards(),"top");
+        drawNumbers(southPlayerCards(),"bottom");
         
         let gamewinner = game.winner();
         let winner = (gamewinner == 0)? player0:player1;
@@ -277,22 +284,22 @@ export function init(OPPONENT,LEVEL="easy"){
 
     northView.addEventListener('click',function(event){
         if(northView.innerHTML=="View") {
-            drawNumbers(manCards(),"bottom");
+            drawNumbers(southPlayerCards(),"bottom");
             northView.innerHTML="Hide";
         }
         else {
-            drawNumbers(new Array(man.digits).fill(UNKNOWN),"bottom");
+            drawNumbers(new Array(southPlayer.digits).fill(UNKNOWN),"bottom");
             northView.innerHTML="View";
         }
     })
 
     southView.addEventListener('click',function(event){
         if(southView.innerHTML=="View") {
-            drawNumbers(oppCards(),"top");
+            drawNumbers(northPlayerCards(),"top");
             southView.innerHTML="Hide";
         }
         else {
-            drawNumbers(new Array(opp.digits).fill(UNKNOWN),"top");
+            drawNumbers(new Array(northPlayer.digits).fill(UNKNOWN),"top");
             southView.innerHTML="View";
         }
     })
@@ -312,58 +319,6 @@ export function init(OPPONENT,LEVEL="easy"){
         `;
 
         gameOverElement.classList.remove("hide");
-    }
-
-
-    function computerEasyAction() {
-        const safeGuess = [];
-        const dangerGuess = [];
-        let lastGuess = null;
-        if(game.lastAction()) {
-            lastGuess = game.lastAction();
-        }
-
-        for(let i=1; i<=man.digits+opp.digits; i++) {
-            for(let j=1; j<=4; j++) {
-                let guess = action(i,j);
-                if(!validGuess(guess))  continue;
-                let estimateCountLow = oppCards().filter(num=>num==j).length+(man.digits+1)/4;
-                let estimateCountHigh = oppCards().filter(num=>num==j).length+man.digits/4+1;
-                if(i<=estimateCountLow)
-                    safeGuess.push(guess);
-                if(i<=estimateCountHigh)
-                    dangerGuess.push(guess);
-            }
-        }
-
-        if (safeGuess.length > 0) {
-            let randomIndex = getRandomNumber(0,safeGuess.length-1);
-            let guess = safeGuess[randomIndex];
-            if(lastGuess && guess.digit != lastGuess.digit && guess.number + lastGuess.number > man.digits+opp.digits) {
-                // don't make stupid guess
-                return "call";
-            }
-            else
-                return safeGuess[randomIndex];
-        }
-        else if (dangerGuess.length > 0) {
-            let randomIndex = getRandomNumber(0,dangerGuess.length-1);
-            let guess = dangerGuess[randomIndex];
-            if(lastGuess && guess.digit != lastGuess.digit && guess.number + lastGuess.number > man.digits+opp.digits) {
-                // don't make stupid guess
-                return "call";
-            }
-            else
-                return dangerGuess[randomIndex];
-        } 
-        else if (oppCards().filter(num=>num==lastGuess.digit).length < lastGuess.number) {
-            // don't make stupid call
-            return "call";
-        } 
-        else {
-            // make a naive guess if don't know what to do
-            return action(lastGuess.number+1, lastGuess.digit);
-        }
     }
 
 }

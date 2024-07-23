@@ -19,6 +19,14 @@ export const createGame = (playerLength0, playerLength1) => {   // player0 moves
         return currentPlayer === 0 ? playerCards0 : playerCards1
     }
 
+    const currentPlayerLength = () => {
+        return currentPlayer === 0 ? playerLength0 : playerLength1
+    }
+
+    const oppPlayerLength = () => {
+        return currentPlayer === 0 ? playerLength1 : playerLength0
+    }
+
     const roundover = () => {
         return (history.length !== 0 && history[history.length - 1].number === 0)
     }
@@ -61,8 +69,13 @@ export const createGame = (playerLength0, playerLength1) => {   // player0 moves
 
     const Cstate = () => {
         const ACTION_BITS = 5;
-        const ACTION_MASK = 0x1F;
+        const ACTION_MASK = (1<<(ACTION_BITS))-1;
         const ACTIONS_RECORD = 6;
+        const HISTORY_BITS = 30;
+        const HISTORY_MASK = (1<<(HISTORY_BITS))-1;
+        const CARDS_BITS = 12;
+        const HISTORY_SHIFT = ((CARDS_BITS));
+        const PLAYER_SHIFT = ((CARDS_BITS)+(HISTORY_BITS));
         
         function CAction(action) {
             if (action.number === 0) return 0;
@@ -83,20 +96,25 @@ export const createGame = (playerLength0, playerLength1) => {   // player0 moves
             CCards = (CCards << 2) | (playerCards[i] - 1);
         }
 
-        return BigInt(CCards) | (BigInt(CHistory) << 32n) | (BigInt(currentPlayer) << 63n);
+        return BigInt(CCards) | (BigInt(CHistory) << BigInt(HISTORY_SHIFT)) | (BigInt(currentPlayer) << BigInt(PLAYER_SHIFT));
     }
 
     return {
+        playerLength0,
+        playerLength1,
         playerCards0,
         playerCards1,
         getCurrentPlayer,
         currentPlayerCards,
+        currentPlayerLength,
+        oppPlayerLength,
         history,
         roundover,
         lastAction,
         validAction,
         step,
         winner,
-        gameover
+        gameover,
+        Cstate
     }
 }
