@@ -21,6 +21,9 @@ export function init(OPPONENT,LEVEL="easy"){
     const southBubble = document.querySelector(".southBubble");
     const northBubble = document.querySelector(".northBubble");
 
+    const history = document.getElementById("historytext");
+
+
     opponent.src = OPPONENT == "computer"?    "img/computer.svg":"img/player2.svg";
     gamestart.classList.remove("hide");
 
@@ -38,7 +41,7 @@ export function init(OPPONENT,LEVEL="easy"){
     const southPlayerInitLength = 3;
     const northPlayerInitLength = 3;
 
-    let southPlayer={name:"man",digits:southPlayerInitLength,imgSrc:"img/player1.svg"};
+    let southPlayer={name:"player",digits:southPlayerInitLength,imgSrc:"img/player1.svg"};
     let northPlayer={name:OPPONENT,digits:northPlayerInitLength,imgSrc:opponent.src};
 
     let lastLoser = southPlayer;
@@ -70,9 +73,12 @@ export function init(OPPONENT,LEVEL="easy"){
         bubble.style.display="flex";
         const bubbletext = bubble.querySelector(".bubbletext");
         bubbletext.innerHTML = message;
+
+        history.innerHTML += `<div>${player.name}: ${message}</div>`;
     }
 
     async function newRound() {
+        history.innerHTML="";
         northView.innerHTML="View";
         southView.innerHTML="View";
         southBubble.style.display="none";
@@ -213,6 +219,10 @@ export function init(OPPONENT,LEVEL="easy"){
         prompt.classList.add("hide");   // prompt is not needed for old players
         if(!nextround.classList.contains("hide")) {
             // the round has been over!
+            return;
+        }
+
+        if(currentPlayer().name == "computer") {
             return;
         }
         // make guess
