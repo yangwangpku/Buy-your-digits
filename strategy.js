@@ -67,32 +67,38 @@ export async function PretrainedStrategy(game) {
     let playerLength0 = game.playerLength0;
     let playerLength1 = game.playerLength1;
 
-    // const arrayBuffer = await loadMsgpackFile(`./strategy/${playerLength0}-${playerLength1}.msgpack`);
-    // const strategy = msgpack.decode(new Uint8Array(arrayBuffer),{int64: true});
-    // console.log("Strategy loaded from strategy.msgpack:", `./strategy/${playerLength0}-${playerLength1}.msgpack`);
-    let strategyInstance = null;
-    for(let i = game.history.length;i>=0;i--) {
-        if(game.history.length > 0 && i == 0)   continue;
-        
-        let {state, swithTurn} = game.Cstate(i);
-        if(!swithTurn) {
-            const arrayBuffer = await loadMsgpackFile(`./strategy/${playerLength0}-${playerLength1}.msgpack`);
-            const strategy = msgpack.decode(new Uint8Array(arrayBuffer),{int64: true});
-            strategyInstance = strategy[state];
-            if(strategyInstance) {
-                console.log(`considering the last ${i} actions, swithTurn : ${swithTurn}`);
-                break;
+    let {state, swithTurn} = game.Cstate();
+    const arrayBuffer = await loadMsgpackFile(`./strategy/${playerLength0}-${playerLength1}-core.msgpack`);
+    const strategy = msgpack.decode(new Uint8Array(arrayBuffer),{int64: true});
+    let strategyInstance = strategy[state];
+
+    if(strategyInstance) {
+        console.log("fetching from core strategy");
+    }
+    else {
+        for(let i = game.history.length;i>=0;i--) {
+            if(game.history.length > 0 && i == 0)   continue;
+            
+            let {state, swithTurn} = game.Cstate(i);
+            if(!swithTurn) {
+                const arrayBuffer = await loadMsgpackFile(`./strategy/${playerLength0}-${playerLength1}.msgpack`);
+                const strategy = msgpack.decode(new Uint8Array(arrayBuffer),{int64: true});
+                strategyInstance = strategy[state];
+                if(strategyInstance) {
+                    console.log(`considering the last ${i} actions, swithTurn : ${swithTurn}`);
+                    break;
+                }
             }
-        }
-        else {
-            const arrayBuffer = await loadMsgpackFile(`./strategy/${playerLength1}-${playerLength0}.msgpack`);
-            const strategy = msgpack.decode(new Uint8Array(arrayBuffer),{int64: true});
-            strategyInstance = strategy[state];
-            if(strategyInstance) {
-                console.log(`considering the last ${i} actions, swithTurn : ${swithTurn}`);
-                break;
-            }            
-        }
+            else {
+                const arrayBuffer = await loadMsgpackFile(`./strategy/${playerLength1}-${playerLength0}.msgpack`);
+                const strategy = msgpack.decode(new Uint8Array(arrayBuffer),{int64: true});
+                strategyInstance = strategy[state];
+                if(strategyInstance) {
+                    console.log(`considering the last ${i} actions, swithTurn : ${swithTurn}`);
+                    break;
+                }            
+            }
+        }    
     }
 
 

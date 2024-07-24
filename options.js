@@ -67,7 +67,13 @@ function switchActive(off, on){
 
 document.addEventListener("DOMContentLoaded",  () => {
     // load everything to cache
-    
+
+    for(let i=5;i>0;i--) {
+        for(let j=5;j>0;j--) {
+            preloadMsgpackFile(`./strategy/${i}-${j}-core.msgpack`);
+        }
+    }    
+
     for(let i=5;i>0;i--) {
         for(let j=5;j>0;j--) {
             preloadMsgpackFile(`./strategy/${i}-${j}.msgpack`);
