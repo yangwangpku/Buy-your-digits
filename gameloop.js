@@ -41,8 +41,8 @@ export function game_init(OPPONENT,LEVEL="easy"){
     const UNKNOWN = 0;
     let tileColor="#ffffe0";
 
-    const southPlayerInitLength = 1;
-    const northPlayerInitLength = 1;
+    const southPlayerInitLength = 5;
+    const northPlayerInitLength = 5;
 
     let southPlayer={name:"player",digits:southPlayerInitLength,imgSrc:"img/player1.svg"};
     let northPlayer={name:OPPONENT,digits:northPlayerInitLength,imgSrc:opponent.src};
