@@ -1,8 +1,9 @@
 import { action,createGame } from "./game.js";
 import { getRandomNumber,fetchAndDecodeMsgpack } from "./utils.js";
 import { HeuristicStrategy, PretrainedStrategy } from "./strategy.js";
+import { preloadMsgpackFile } from "./msgpackLoader.js";
 
-export function init(OPPONENT,LEVEL="easy"){
+export function game_init(OPPONENT,LEVEL="easy"){
 
     const gamestart = document.querySelector(".gamestart");
     const opponent = document.querySelector(".opponent");
@@ -38,8 +39,8 @@ export function init(OPPONENT,LEVEL="easy"){
     const UNKNOWN = 0;
     let tileColor="#ffffe0";
 
-    const southPlayerInitLength = 4;
-    const northPlayerInitLength = 4;
+    const southPlayerInitLength = 5;
+    const northPlayerInitLength = 5;
 
     let southPlayer={name:"player",digits:southPlayerInitLength,imgSrc:"img/player1.svg"};
     let northPlayer={name:OPPONENT,digits:northPlayerInitLength,imgSrc:opponent.src};
@@ -330,15 +331,5 @@ export function init(OPPONENT,LEVEL="easy"){
 
         gameOverElement.classList.remove("hide");
     }
-
-    document.addEventListener("DOMContentLoaded", () => {
-        // load everything to cache
-        
-        for(let i=southPlayerInitLength;i>0;i--) {
-            for(let j=northPlayerInitLength;j>0;j--) {
-                fetchAndDecodeMsgpack(`msgpack/${i}_${j}.msgpack`);
-            }
-        }
-    });
 
 }

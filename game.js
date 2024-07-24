@@ -67,7 +67,7 @@ export const createGame = (playerLength0, playerLength1) => {   // player0 moves
         return playerCards0.length === 0 || playerCards1.length === 0
     }
 
-    const Cstate = () => {
+    const Cstate = (history_consider=history.length) => {
         const ACTION_BITS = 5;
         const ACTION_MASK = (1<<(ACTION_BITS))-1;
         const ACTIONS_RECORD = 6;
@@ -82,14 +82,24 @@ export const createGame = (playerLength0, playerLength1) => {   // player0 moves
             return (action.number - 1) * 4 + action.digit;
         }        
 
+        let history_copy = []
+        for(let i = 0; i < history.length; i++) {
+            history_copy.push(history[i])
+        }
+        history_copy = history_copy.splice(-history_consider)
+
+        // console.log(`history_copy:`)
+        // for(let i = 0; i < history_copy.length; i++) {
+        //     console.log(history_copy[i])
+        // }
+
+        const swithTurn = ((history_copy.length % 2) !== (history.length % 2))
+        const switchedPlayer = (swithTurn? (1-currentPlayer):currentPlayer)
+
         let CHistory = 0
 
-        // only keep the last 4 actions
-        let startIdx = Math.max(0,history.length-4)
-        if(startIdx % 2 === 1) startIdx ++
-
-        for (let i = startIdx; i < history.length; i++) {
-            CHistory = ((CHistory << ACTION_BITS) | CAction(history[i])) & 0x3FFFFFFF;
+        for (let i = 0; i < history_copy.length; i++) {
+            CHistory = ((CHistory << ACTION_BITS) | CAction(history_copy[i])) & 0x3FFFFFFF;
         }
 
         let playerCards = currentPlayerCards()
@@ -101,7 +111,8 @@ export const createGame = (playerLength0, playerLength1) => {   // player0 moves
             CCards = (CCards << 2) | (playerCards[i] - 1);
         }
 
-        return BigInt(CCards) | (BigInt(CHistory) << BigInt(HISTORY_SHIFT)) | (BigInt(currentPlayer) << BigInt(PLAYER_SHIFT));
+        const state = BigInt(CCards) | (BigInt(CHistory) << BigInt(HISTORY_SHIFT)) | (BigInt(switchedPlayer) << BigInt(PLAYER_SHIFT));
+        return {state, swithTurn}
     }
 
     return {

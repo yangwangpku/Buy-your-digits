@@ -1,4 +1,5 @@
-import { init } from "./gameloop.js";
+import { game_init } from "./gameloop.js";
+import { preloadMsgpackFile } from "./msgpackLoader.js";
 
 // SELECT START ELEMENT
 const options = document.querySelector(".options");
@@ -52,9 +53,9 @@ playBtn.addEventListener("click", function(){
     }
     
     if( OPPONENT=="friend")
-        init(OPPONENT);
+        game_init(OPPONENT);
     else
-        init(OPPONENT,LEVEL);
+        game_init(OPPONENT,LEVEL);
     
     options.classList.add("hide");
 });
@@ -63,3 +64,13 @@ function switchActive(off, on){
     off.classList.remove("active");
     on.classList.add("active");
 }
+
+document.addEventListener("DOMContentLoaded",  () => {
+    // load everything to cache
+    
+    for(let i=5;i>0;i--) {
+        for(let j=5;j>0;j--) {
+            preloadMsgpackFile(`./strategy/${i}-${j}.msgpack`);
+        }
+    }
+});
