@@ -8,10 +8,14 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="invitation">
+    <div class="description">
         <p>This game is open-sourced! You can find the source code and contribute on <a href="https://github.com/yangwangpku/DuelDigits" target="_blank">GitHub</a>. If you love this game, please give it a ⭐️ on GitHub to show your support!</p>
     </div>
-    
+
+    <h3 class="menu">
+        <span id="statisticsBtn">Statistics</span>
+    </h3>
+
     
     <div class="container">
         <div class="options">
@@ -76,6 +80,45 @@
             <div class="prompt"> Make a guess below or click the Call button to challenge the last guess! </div>
         </div>
         <div class="gameover hide"></div>
+
+
+        <div class="statistics hide">
+            <h3>Easy</h3>
+            <div class="stats">
+                <div class="stat">
+                    <p>Wins: <span id="easyWin">0</span> </p>
+                </div>
+                <div class="stat">
+                    <p>Losses: <span id="easyLose">0</span> </p>
+                </div>
+                <div class="stat">
+                    <p>Win Rate: <span id="easyWinRate">0%</span> </p>
+                </div>
+                <div class="stat">
+                    <p>Games Played: <span id="easyGamesPlayed">0</span> </p>
+                </div>
+            </div>
+
+            <h3>Hard</h3>
+            <div class="stats">
+                <div class="stat">
+                    <p>Wins: <span id="hardWin">0</span> </p>
+                </div>
+                <div class="stat">
+                    <p>Losses: <span id="hardLose">0</span> </p>
+                </div>
+                <div class="stat">
+                    <p>Win Rate: <span id="hardWinRate">0%</span> </p>
+                </div>
+                <div class="stat">
+                    <p>Games Played: <span id="hardGamesPlayed">0</span> </p>
+                </div>
+            </div>
+
+            <div class="back">Back</div>
+            <div class="reset">Reset</div>
+
+        </div>
 
     </div>
 

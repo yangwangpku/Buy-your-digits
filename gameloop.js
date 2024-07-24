@@ -2,6 +2,7 @@ import { action,createGame } from "./game.js";
 import { getRandomNumber,fetchAndDecodeMsgpack } from "./utils.js";
 import { HeuristicStrategy, PretrainedStrategy } from "./strategy.js";
 import { preloadMsgpackFile } from "./msgpackLoader.js";
+import { updateStats } from "./statistics.js";
 
 export function game_init(OPPONENT,LEVEL="easy"){
 
@@ -23,6 +24,7 @@ export function game_init(OPPONENT,LEVEL="easy"){
     const northBubble = document.querySelector(".northBubble");
 
     const history = document.getElementById("historytext");
+    const statisticsBtn = document.getElementById("statisticsBtn");
 
 
     opponent.src = OPPONENT == "computer"?    "img/computer.svg":"img/player2.svg";
@@ -39,8 +41,8 @@ export function game_init(OPPONENT,LEVEL="easy"){
     const UNKNOWN = 0;
     let tileColor="#ffffe0";
 
-    const southPlayerInitLength = 5;
-    const northPlayerInitLength = 5;
+    const southPlayerInitLength = 1;
+    const northPlayerInitLength = 1;
 
     let southPlayer={name:"player",digits:southPlayerInitLength,imgSrc:"img/player1.svg"};
     let northPlayer={name:OPPONENT,digits:northPlayerInitLength,imgSrc:opponent.src};
@@ -321,12 +323,17 @@ export function game_init(OPPONENT,LEVEL="easy"){
     })
 
     function showGameOver(winner){
+        if(OPPONENT=="computer") {
+            updateStats(LEVEL, winner.name == southPlayer.name);
+        }
+
         let message = "The Winner is";
 
         gameOverElement.innerHTML = `
-            <h1>${message}</1>
+            <h1>${message}
             <img class="winner-img " src=${winner.imgSrc} </img>
             <div class="play" onclick="location.reload()">Play Again!</div>
+            </h1>
         `;
 
         gameOverElement.classList.remove("hide");

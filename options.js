@@ -1,5 +1,6 @@
 import { game_init } from "./gameloop.js";
 import { preloadMsgpackFile } from "./msgpackLoader.js";
+import { resetStats } from "./statistics.js";
 
 // SELECT START ELEMENT
 const options = document.querySelector(".options");
@@ -11,11 +12,19 @@ const easyBtn = document.querySelector(".easy");
 const hardBtn = document.querySelector(".hard");
 const playBtn = document.querySelector(".play");
 const difficultySection = document.getElementById("difficulty");
+const statisticsSection = document.querySelector(".statistics");
+const statisticsBtn = document.getElementById("statisticsBtn");
+const backBtn = document.querySelector(".back");
+const resetBtn = document.querySelector(".reset");
 
 // GAME OVER ELEMENT
 const gameOverElement = document.querySelector(".gameover");
 
-let OPPONENT,LEVEL;
+let OPPONENT="computer"
+let LEVEL="hard";
+switchActive(easyBtn, hardBtn);
+switchActive(friendBtn, computerBtn);
+difficultySection.classList.remove("hide");
 
 easyBtn.addEventListener("click", function(){
     LEVEL = "easy";
@@ -64,6 +73,22 @@ function switchActive(off, on){
     off.classList.remove("active");
     on.classList.add("active");
 }
+
+statisticsBtn.addEventListener("click", function(){
+    if(statisticsSection.classList.contains("hide"))
+        statisticsSection.classList.remove("hide");
+    else
+        statisticsSection.classList.add("hide");
+});
+
+backBtn.addEventListener("click", function(){
+    statisticsSection.classList.add("hide");
+});
+
+resetBtn.addEventListener("click", function(){
+    resetStats();
+    alert("Statistics Reseted!");
+});
 
 document.addEventListener("DOMContentLoaded",  () => {
     // load everything to cache

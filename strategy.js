@@ -60,8 +60,11 @@ export async function PretrainedStrategy(game) {
 
     // const fs = require('fs');
     // const msgpack = require('@msgpack/msgpack');
-    if(game.lastAction() && (game.lastAction().number > 8 || (game.lastAction().number == 8 && game.lastAction().digit == 4))) {
-        return "call";
+    if(game.lastAction() ) {
+        if((game.lastAction().number > 8 || (game.lastAction().number == 8 && game.lastAction().digit == 4)))
+            return "call";
+        if((game.lastAction().number > game.oppPlayerLength() + game.currentPlayerCards().filter(num=>num==game.lastAction().digit).length))
+            return "call";
     }
 
     let playerLength0 = game.playerLength0;

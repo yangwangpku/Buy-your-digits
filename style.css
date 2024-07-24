@@ -23,9 +23,18 @@ body {
 .invitation {
     text-align: center;
     width: var(--container-width);
+    /* color: rgb(128,0,0); */
+    margin: 25px auto;
+    font-size: bold;
+}
+
+.menu {
+    text-align: center;
+    width: var(--container-width);
     color: rgb(128,0,0);
     margin: 25px auto;
     font-size: bold;
+    cursor: pointer;
 }
 
 .container{
@@ -131,6 +140,44 @@ body {
     display: none;
 }
 
+.statistics{
+    position: absolute;
+    width: var(--container-width);
+    height: var(--container-height);
+    text-align: center;
+    background-color: rgb(0,160,0);
+}
+
+.back{
+    position: absolute;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 1.2em;
+    width: 100px;
+    border-radius: 5px;
+    border: 1px solid #011627;
+    text-align: center;
+    padding: 10px;
+    background-color: #011627;
+    color: #FFF;
+    cursor: pointer;    
+    right: 30px;
+}
+
+.reset{
+    position: absolute;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-size: 1.2em;
+    width: 100px;
+    border-radius: 5px;
+    border: 1px solid #011627;
+    text-align: center;
+    padding: 10px;
+    background-color: #011627;
+    color: #FFF;
+    cursor: pointer;    
+    left: 30px;
+}
+
 .gamestart{
     position: absolute;
     width: var(--container-width);
@@ -224,8 +271,6 @@ body {
     height: var(--container-height);
     margin-left: calc(var(--container-width) + 1px);
     text-align: center;
-    /* color: blue; */
-    /* background-color: rgb(0,160,0); */
 }
 
 .guesstext{
@@ -397,7 +442,6 @@ body {
 .description{
     font-family: "Arial, sans-serif";
     width: var(--container-width);
-    height: var(--container-height);
     display: block;
     margin: 25px auto;
     position: relative;
@@ -405,7 +449,7 @@ body {
 
 .description h2{
     text-align: center;
-    color: rgb(128,0,0);
+    /* color: rgb(128,0,0); */
 }
 
 .description ol{
