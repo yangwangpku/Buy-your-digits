@@ -4,14 +4,41 @@ if(localStorage.getItem('easyWin') == null) {
 if(localStorage.getItem('easyLose') == null) {
     localStorage.setItem("easyLose", 0);
 }
+
+if(localStorage.getItem('easyOngoing') == null) {
+    localStorage.setItem("easyOngoing", 0);
+}
+else {
+    // if the game was ongoing, set the user to lose
+    localStorage.setItem("easyLose", parseInt(localStorage.getItem("easyLose")) + parseInt(localStorage.getItem("easyOngoing")));
+    localStorage.setItem("easyOngoing", 0);
+}
+
+
 if(localStorage.getItem('hardWin') == null) {
     localStorage.setItem("hardWin", 0);
 }
 if(localStorage.getItem('hardLose') == null) {
     localStorage.setItem("hardLose", 0);
 }
+if(localStorage.getItem('hardOngoing') == null) {
+    localStorage.setItem("hardOngoing", 0);
+}
+else {
+    // if the game was ongoing, set the user to lose
+    localStorage.setItem("hardLose", parseInt(localStorage.getItem("hardLose")) + parseInt(localStorage.getItem("hardOngoing")));
+    localStorage.setItem("hardOngoing", 0);
+}
 
 renderStats();
+
+export function startGameStats(LEVEL) {
+    if(LEVEL == "easy") {
+        localStorage.setItem("easyOngoing", 1);
+    } else {
+        localStorage.setItem("hardOngoing", 1);
+    }
+}
 
 export function updateStats(LEVEL, win) {
     if(LEVEL == "easy") {
@@ -20,12 +47,14 @@ export function updateStats(LEVEL, win) {
         } else {
             localStorage.setItem("easyLose", parseInt(localStorage.getItem("easyLose")) + 1);
         }
+        localStorage.setItem("easyOngoing", 0);
     } else {
         if(win) {
             localStorage.setItem("hardWin", parseInt(localStorage.getItem("hardWin")) + 1);
         } else {
             localStorage.setItem("hardLose", parseInt(localStorage.getItem("hardLose")) + 1);
         }
+        localStorage.setItem("hardOngoing", 0);
     }
     renderStats();
 }

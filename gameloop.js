@@ -2,7 +2,7 @@ import { action,createGame } from "./game.js";
 import { getRandomNumber,fetchAndDecodeMsgpack } from "./utils.js";
 import { HeuristicStrategy, PretrainedStrategy } from "./strategy.js";
 import { preloadMsgpackFile } from "./msgpackLoader.js";
-import { updateStats } from "./statistics.js";
+import { updateStats,startGameStats } from "./statistics.js";
 
 export function game_init(OPPONENT,LEVEL="easy"){
 
@@ -52,6 +52,10 @@ export function game_init(OPPONENT,LEVEL="easy"){
     let player1 = northPlayer;
 
     let game = createGame(southPlayer.digits,northPlayer.digits);
+
+    if(OPPONENT=="computer") {
+        startGameStats(LEVEL);
+    }
 
     const currentPlayer = () => {
         return (game.getCurrentPlayer() === 0)? player0:player1;
