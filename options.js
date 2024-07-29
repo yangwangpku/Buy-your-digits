@@ -95,13 +95,13 @@ document.addEventListener("DOMContentLoaded",  () => {
 
     for(let i=5;i>0;i--) {
         for(let j=5;j>0;j--) {
-            preloadMsgpackFile(`./strategy/${i}-${j}-core.msgpack`);
+            preloadMsgpackFile(`./strategy-v2/${i}-${j}-core.msgpack`);
         }
     }    
 
     for(let i=5;i>0;i--) {
         for(let j=5;j>0;j--) {
-            preloadMsgpackFile(`./strategy/${i}-${j}.msgpack`);
+            preloadMsgpackFile(`./strategy-v2/${i}-${j}.msgpack`);
         }
     }
 });

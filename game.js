@@ -70,10 +70,10 @@ export const createGame = (playerLength0, playerLength1) => {   // player0 moves
     const Cstate = (history_consider=history.length) => {
         const ACTION_BITS = 5;
         const ACTION_MASK = (1<<(ACTION_BITS))-1;
-        const ACTIONS_RECORD = 6;
-        const HISTORY_BITS = 30;
+        const ACTIONS_RECORD = 4;
+        const HISTORY_BITS = ACTION_BITS*ACTIONS_RECORD;
         const HISTORY_MASK = (1<<(HISTORY_BITS))-1;
-        const CARDS_BITS = 12;
+        const CARDS_BITS = 10;
         const HISTORY_SHIFT = ((CARDS_BITS));
         const PLAYER_SHIFT = ((CARDS_BITS)+(HISTORY_BITS));
         
@@ -99,7 +99,7 @@ export const createGame = (playerLength0, playerLength1) => {   // player0 moves
         let CHistory = 0
 
         for (let i = 0; i < history_copy.length; i++) {
-            CHistory = ((CHistory << ACTION_BITS) | CAction(history_copy[i])) & 0x3FFFFFFF;
+            CHistory = ((CHistory << ACTION_BITS) | CAction(history_copy[i])) & HISTORY_MASK;
         }
 
         let playerCards = currentPlayerCards()
@@ -111,7 +111,7 @@ export const createGame = (playerLength0, playerLength1) => {   // player0 moves
             CCards = (CCards << 2) | (playerCards[i] - 1);
         }
 
-        const state = BigInt(CCards) | (BigInt(CHistory) << BigInt(HISTORY_SHIFT)) | (BigInt(switchedPlayer) << BigInt(PLAYER_SHIFT));
+        const state = (CCards) | ((CHistory) << (HISTORY_SHIFT)) | ((switchedPlayer) << (PLAYER_SHIFT));
         return {state, swithTurn}
     }
 
