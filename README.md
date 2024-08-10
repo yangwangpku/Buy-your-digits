@@ -1,10 +1,10 @@
-# [DuelDigits](https://yangwangpku.github.io/DuelDigits/)
+# [Buy-your-digits](https://yangwangpku.github.io/Buy-your-digits/)
 
 ## Introduction
-Welcome to DuelDigits, a strategic two-player number guessing game implemented in JavaScript. The game challenges players to outwit their opponent by making increasingly aggressive guesses or strategically challenging the opponent's guess. It's all about strategy, probability, and a bit of luck!
+Buy-your-digits is a strategic two-player number guessing game implemented in JavaScript. The game challenges players to outwit their opponent by making increasingly aggressive guesses or strategically challenging the opponent's guess. It's all about strategy, probability, and a bit of luck!
 
 ## How to Play
-Simply click on [this link](https://yangwangpku.github.io/DuelDigits/) and dive into the game. The intuitive interface will guide you through the gameplay.
+Simply click on [this link](https://yangwangpku.github.io/Buy-your-digits/) and dive into the game. The intuitive interface will guide you through the gameplay.
 
 ## Rules of the Game
 1. Each player starts with a random sequence of 5 digits ranging from 1-4.
