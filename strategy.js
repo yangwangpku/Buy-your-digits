@@ -71,7 +71,7 @@ export async function PretrainedStrategy(game) {
     let playerLength1 = game.playerLength1;
 
     let {state, swithTurn} = game.Cstate();
-    const arrayBuffer = await loadMsgpackFile(`./strategy-v2/${playerLength0}-${playerLength1}-core.msgpack`);
+    const arrayBuffer = await loadMsgpackFile(`./strategy-v3/${playerLength0}-${playerLength1}-core.msgpack`);
     const strategy = msgpack.decode(new Uint8Array(arrayBuffer),{int64: true});
     let strategyInstance = strategy[state];
 
@@ -84,7 +84,7 @@ export async function PretrainedStrategy(game) {
             
             let {state, swithTurn} = game.Cstate(i);
             if(!swithTurn) {
-                const arrayBuffer = await loadMsgpackFile(`./strategy-v2/${playerLength0}-${playerLength1}.msgpack`);
+                const arrayBuffer = await loadMsgpackFile(`./strategy-v3/${playerLength0}-${playerLength1}.msgpack`);
                 const strategy = msgpack.decode(new Uint8Array(arrayBuffer),{int64: true});
                 strategyInstance = strategy[state];
                 if(strategyInstance) {
@@ -93,7 +93,7 @@ export async function PretrainedStrategy(game) {
                 }
             }
             else {
-                const arrayBuffer = await loadMsgpackFile(`./strategy-v2/${playerLength1}-${playerLength0}.msgpack`);
+                const arrayBuffer = await loadMsgpackFile(`./strategy-v3/${playerLength1}-${playerLength0}.msgpack`);
                 const strategy = msgpack.decode(new Uint8Array(arrayBuffer),{int64: true});
                 strategyInstance = strategy[state];
                 if(strategyInstance) {
