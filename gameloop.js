@@ -1,7 +1,5 @@
-import { action,createGame } from "./game.js";
-import { getRandomNumber,fetchAndDecodeMsgpack } from "./utils.js";
+import { createGame } from "./game.js";
 import { HeuristicStrategy, PretrainedStrategy } from "./strategy.js";
-import { preloadMsgpackFile } from "./msgpackLoader.js";
 import { updateStats,startGameStats } from "./statistics.js";
 
 export function game_init(OPPONENT,LEVEL="easy"){
@@ -9,43 +7,40 @@ export function game_init(OPPONENT,LEVEL="easy"){
     const gamestart = document.querySelector(".gamestart");
     const opponent = document.querySelector(".opponent");
     const guessSection = document.querySelector(".guess");
-    const guesstext = document.querySelector(".guesstext");
-    const guessnumber = document.getElementById("guessnumber");
-    const guessdigit = document.getElementById("guessdigit");
     const call = document.querySelector(".call");
     const nextround = document.querySelector(".nextround");
     const gameOverElement = document.querySelector(".gameover");
-    const northView = document.querySelector(".northView");
-    const southView = document.querySelector(".southView");
-    const southTurn = document.querySelector(".southTurn");
-    const northTurn = document.querySelector(".northTurn");
-    const prompt = document.querySelector(".prompt");
+    const peekNorth = document.querySelector(".peekNorth");
+    const peekSouth = document.querySelector(".peekSouth");
+    const northSeat = document.getElementById("northSeat");
+    const southSeat = document.getElementById("southSeat");
+    const northHand = document.getElementById("northHand");
+    const southHand = document.getElementById("southHand");
     const southBubble = document.querySelector(".southBubble");
     const northBubble = document.querySelector(".northBubble");
-
+    const status = document.getElementById("status");
     const history = document.getElementById("historytext");
-    const statisticsBtn = document.getElementById("statisticsBtn");
 
+    const VS_COMPUTER = OPPONENT == "computer";
 
-    opponent.src = OPPONENT == "computer"?    "img/computer.svg":"img/player2.svg";
+    opponent.src = VS_COMPUTER?    "img/computer.svg":"img/player2.svg";
+    document.getElementById("southName").textContent = VS_COMPUTER? "You":"Player 1";
+    document.getElementById("northName").textContent = VS_COMPUTER? "Computer":"Player 2";
     gamestart.classList.remove("hide");
 
-    if(OPPONENT == "friend") {
-        northView.classList.remove("hide");
-        southView.classList.remove("hide");
+    if(!VS_COMPUTER) {
+        peekNorth.classList.remove("hide");
+        peekSouth.classList.remove("hide");
     }
 
     let computerStrategy = (LEVEL == "easy")? HeuristicStrategy:PretrainedStrategy;
 
-    const tileWidth = 50;
     const UNKNOWN = 0;
-    let tileColor="#ffffe0";
+    const MAX_DIGITS = 5;
+    const THINK_TIME = 600;     // ms the computer "thinks", so its move is readable
 
-    const southPlayerInitLength = 5;
-    const northPlayerInitLength = 5;
-
-    let southPlayer={name:"player",digits:southPlayerInitLength,imgSrc:"img/player1.svg"};
-    let northPlayer={name:OPPONENT,digits:northPlayerInitLength,imgSrc:opponent.src};
+    let southPlayer={name:"player",label:VS_COMPUTER? "You":"Player 1",digits:MAX_DIGITS,imgSrc:"img/player1.svg"};
+    let northPlayer={name:OPPONENT,label:VS_COMPUTER? "Computer":"Player 2",digits:MAX_DIGITS,imgSrc:opponent.src};
 
     let lastLoser = southPlayer;
     let player0 = southPlayer;
@@ -53,7 +48,7 @@ export function game_init(OPPONENT,LEVEL="easy"){
 
     let game = createGame(southPlayer.digits,northPlayer.digits);
 
-    if(OPPONENT=="computer") {
+    if(VS_COMPUTER) {
         startGameStats(LEVEL);
     }
 
@@ -61,59 +56,112 @@ export function game_init(OPPONENT,LEVEL="easy"){
         return (game.getCurrentPlayer() === 0)? player0:player1;
     };
 
+    const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+    const formatGuess = guess => `<span class="bid"><b>${guess.number}</b> × <span class="chip">${guess.digit}</span></span>`;
+
+    const tileAt = (number,digit) => document.getElementById(`${number} ${digit}`);
+
     newRound();
 
     function activatePlayer(player) {
-        if(player.name == southPlayer.name) {
-            southTurn.classList.remove("hide");
-            northTurn.classList.add("hide");
-        }
-        else {
-            southTurn.classList.add("hide");
-            northTurn.classList.remove("hide");            
-        }
+        const south = player.name == southPlayer.name;
+        southSeat.classList.toggle("is-turn", south);
+        northSeat.classList.toggle("is-turn", !south);
     }
 
+    function bubbleOf(player) {
+        return (player.name==southPlayer.name)?   southBubble:northBubble;
+    }
 
     function speak(player,message) {
-        const bubble = (player.name==southPlayer.name)?   southBubble:northBubble;
-        bubble.style.display="flex";
-        const bubbletext = bubble.querySelector(".bubbletext");
-        bubbletext.innerHTML = message;
+        const bubble = bubbleOf(player);
+        bubble.classList.remove("is-thinking");
+        bubble.classList.add("is-visible");
+        bubble.querySelector(".bubbletext").innerHTML = message;
 
-        history.innerHTML += `<div>${player.name}: ${message}</div>`;
+        // replay the pop animation
+        bubble.classList.remove("pop");
+        void bubble.offsetWidth;
+        bubble.classList.add("pop");
+
+        history.innerHTML += `<li><span class="who">${player.label}</span>${message}</li>`;
+        history.parentElement.scrollTop = history.parentElement.scrollHeight;
+    }
+
+    function showThinking(player) {
+        const bubble = bubbleOf(player);
+        bubble.classList.add("is-visible","is-thinking");
+        bubble.querySelector(".bubbletext").innerHTML = "<i></i><i></i><i></i>";
+    }
+
+    function setStatus(html) {
+        status.innerHTML = html;
+    }
+
+    function showTurnStatus() {
+        if(game.roundover())    return;
+        const player = currentPlayer();
+        const last = game.lastAction();
+
+        if(player.name == "computer") {
+            setStatus("Computer is thinking…");
+            return;
+        }
+
+        const who = VS_COMPUTER? "Your turn." : `${player.label}'s turn.`;
+        if(!last)
+            setStatus(`<strong>${who}</strong> Open the round: pick how many of a digit are in both hands.`);
+        else
+            setStatus(`<strong>${who}</strong> Raise above ${formatGuess(last)} or call it.`);
     }
 
     async function newRound() {
         history.innerHTML="";
-        northView.innerHTML="View";
-        southView.innerHTML="View";
-        southBubble.style.display="none";
-        northBubble.style.display="none";
+        peekNorth.innerHTML="View";
+        peekSouth.innerHTML="View";
+        southBubble.classList.remove("is-visible","is-thinking");
+        northBubble.classList.remove("is-visible","is-thinking");
+        gamestart.classList.remove("round-over");
+        call.classList.remove("hide");
 
         activatePlayer(lastLoser);
         player0 = lastLoser;
         player1 = (lastLoser.name == southPlayer.name)? northPlayer:southPlayer;
 
         game = createGame(player0.digits,player1.digits);
-        
-        if(OPPONENT=="friend")
+
+        if(!VS_COMPUTER)
             drawNumbers(new Array(southPlayer.digits).fill(UNKNOWN),"bottom");
         else
-            drawNumbers((player0.name == southPlayer.name)? game.playerCards0:game.playerCards1,"bottom");
+            drawNumbers(southPlayerCards(),"bottom");
         drawNumbers(new Array(northPlayer.digits).fill(UNKNOWN),"top");
         drawGuessBTNs();
+        showTurnStatus();
 
         if(player0.name=="computer") {
             // computer makes the first move
-            const computerAction = await computerStrategy(game);
-            speak(currentPlayer(),`${computerAction.number} ${computerAction.digit}(s)`);
-            game.step(computerAction);
-            drawGuessBTNs(computerAction);
-            activatePlayer(player1);
+            await computerMove();
         }
     }
 
+    async function computerMove() {
+        showThinking(currentPlayer());
+        const [computerAction] = await Promise.all([computerStrategy(game), sleep(THINK_TIME)]);
+
+        if(computerAction == "call") {
+            speak(currentPlayer(),"Call!");
+            game.step({number:0,digit:0});
+            endRound();
+        }
+        else {
+            speak(currentPlayer(),formatGuess(computerAction));
+            game.step(computerAction);
+            activatePlayer(currentPlayer());
+            drawGuessBTNs();
+            showTurnStatus();
+        }
+    }
 
     function validGuess(guess) {
         return game.validAction(guess);
@@ -127,104 +175,121 @@ export function game_init(OPPONENT,LEVEL="easy"){
         return player0.name == southPlayer.name? game.playerCards1:game.playerCards0;
     }
 
-    function drawNumbers(numbers,position) {
+    function drawNumbers(numbers,position,matchDigit = null) {
         // position: top or bottom
-        for(let i=0; i<5; i++) {
+        const hand = (position == "top")? northHand:southHand;
+        for(let i=0; i<MAX_DIGITS; i++) {
             let number = document.getElementById(`${i} ${position}`);
-            if(i>=numbers.length){
-                if(number)  number.style.display = "none";  // hide the lost digits
-                continue;
-            }
 
             if(!number) {
                 number = document.createElement("div");
                 number.id = `${i} ${position}`;
                 number.classList.add("number");
-                if(position == "top")
-                    number.style.top = 0;
-                else
-                    number.style.bottom = 0;
-                number.style.left = (5+i)*tileWidth + "px";
-                gamestart.appendChild(number);
+                number.style.setProperty("--i", i);
+                hand.appendChild(number);
             }
-            number.innerHTML = (numbers[i]==UNKNOWN)?   "?" : numbers[i];
+
+            if(i>=numbers.length){
+                // a lost digit leaves an empty slot behind
+                number.className = "number is-lost";
+                number.innerHTML = "";
+                continue;
+            }
+
+            const wasHidden = number.classList.contains("is-hidden");
+            const hidden = numbers[i]==UNKNOWN;
+            number.innerHTML = hidden?   "?" : numbers[i];
+            number.classList.remove("is-lost");
+            number.classList.toggle("is-hidden", hidden);
+            number.classList.toggle("is-match", matchDigit != null && numbers[i] == matchDigit);
+            number.classList.toggle("reveal", wasHidden && !hidden);
         }
     }
 
-    function drawGuessBTNs(action = null) {
+    function drawGuessBTNs() {
+        const total = southPlayer.digits+northPlayer.digits;
+        const last = game.lastAction();
+        const waiting = game.roundover() || currentPlayer().name == "computer";
+
+        guessSection.style.setProperty("--cols", total);
+        guessSection.classList.toggle("is-locked", waiting);
+
         for(let i=1; i<=10; i++) {
+            let head = document.getElementById(`count ${i}`);
+            if(!head) {
+                head = document.createElement("span");
+                head.id = `count ${i}`;
+                head.classList.add("colhead");
+                head.innerHTML = i;
+                head.style.gridColumn = i;
+                guessSection.appendChild(head);
+            }
+            head.classList.toggle("hide", i > total);
+
             for(let j=1; j<=4; j++) {
-                let guesstile = document.getElementById(`${i} ${j}`);
+                let guesstile = tileAt(i,j);
 
                 if(!guesstile) {
                     // draw the button for the first time
-                    guesstile = document.createElement("div");
+                    guesstile = document.createElement("button");
+                    guesstile.type = "button";
                     guesstile.id = `${i} ${j}`;
                     guesstile.dataset.guess = JSON.stringify({number:i, digit:j});
                     guesstile.classList.add("guesstile");
+                    guesstile.setAttribute("aria-label", `Guess ${i} of digit ${j}`);
                     guesstile.innerHTML = j;
-                    guesstile.style.top = (2+j)*tileWidth + "px";;
-                    guesstile.style.left = (i)*tileWidth + "px";
+                    guesstile.style.gridColumn = i;
+                    guesstile.style.gridRow = j+1;
                     guessSection.appendChild(guesstile);
                 }
 
-                if(i > southPlayer.digits+northPlayer.digits) {
-                    // hide illegal guess
-                    guesstile.style.display = "none";
-                }
+                // hide illegal guess
+                guesstile.classList.toggle("hide", i > total);
 
-                // change the color to yellow if it's the last guess
-                if(action != null && i <= action.number && j == action.digit)
-                    guesstile.style.backgroundColor = "yellow"
-                else
-                    guesstile.style.backgroundColor = tileColor;
+                guesstile.classList.remove("is-preview","is-bad","is-actual","is-short");
+                // highlight the last guess, and fade what can no longer be guessed
+                const isLast = last != null && last.number !== 0 && i <= last.number && j == last.digit;
+                guesstile.classList.toggle("is-last", isLast);
+                guesstile.classList.toggle("is-spent", !isLast && !validGuess({number:i, digit:j}));
             }
         }
+
+        call.disabled = waiting || !last;
     }
 
+    function showPreview(target) {
+        if(!target.classList || !target.classList.contains("guesstile"))   return;
+        if(game.roundover() || currentPlayer().name == "computer")   return;
 
-    guessSection.addEventListener('mouseover', function(event){
-        if(game.roundover()) {
-            // the round has been over!
-            return;
+        const guess = JSON.parse(target.dataset.guess);
+        const valid = validGuess(guess);
+        for(let i=1; i<=guess.number;i++) {
+            tileAt(i,guess.digit).classList.add(valid? "is-preview":"is-bad");
         }
-        const hoveredElement = event.target;
-        if(hoveredElement.classList.contains("guesstile")) {
-            const guess = JSON.parse(hoveredElement.dataset.guess);
-            for(let i=1; i<=guess.number;i++) {
-                let guesstile = document.getElementById(`${i} ${guess.digit}`);
-                guesstile.style.backgroundColor = validGuess(guess)? "green":"red";                
-            }
 
-            if(validGuess(guess)) {
-                guesstext.style.display = "flex";
-                guessnumber.innerHTML=guess.number;
-                guessdigit.innerHTML=guess.digit;
-            }
-            else
-                guesstext.style.display = "none";
-        }
-    })
+        if(valid)
+            setStatus(`Guess: at least ${formatGuess(guess)} across both hands.`);
+        else
+            setStatus(`Too low. A guess must beat ${formatGuess(game.lastAction())}.`);
+    }
 
-    guessSection.addEventListener('mouseout', function(event){
-        if(game.roundover()) {
-            // the round has been over!
-            return
-        }
-        const outElement = event.target;
-        if(outElement.classList.contains("guesstile")) {
-            guesstext.style.display = "none";
-            const guess = JSON.parse(outElement.dataset.guess);
-            for(let i=1; i<=guess.number;i++) {
-                let guesstile = document.getElementById(`${i} ${guess.digit}`);
-                guesstile.style.backgroundColor = (game.lastAction() && i <= game.lastAction().number && guess.digit == game.lastAction().digit)? "yellow":tileColor;
-            }
-        }
-    })
+    function clearPreview(target) {
+        if(!target.classList || !target.classList.contains("guesstile"))   return;
+        if(game.roundover())    return;
+
+        guessSection.querySelectorAll(".is-preview, .is-bad").forEach(tile => {
+            tile.classList.remove("is-preview","is-bad");
+        });
+        showTurnStatus();
+    }
+
+    guessSection.addEventListener('mouseover', event => showPreview(event.target));
+    guessSection.addEventListener('mouseout', event => clearPreview(event.target));
+    guessSection.addEventListener('focusin', event => showPreview(event.target));
+    guessSection.addEventListener('focusout', event => clearPreview(event.target));
 
     guessSection.addEventListener('click', async function(event){
-        prompt.classList.add("hide");   // prompt is not needed for old players
-        if(!nextround.classList.contains("hide")) {
+        if(game.roundover()) {
             // the round has been over!
             return;
         }
@@ -238,86 +303,89 @@ export function game_init(OPPONENT,LEVEL="easy"){
 
         const guess = JSON.parse(clickedElement.dataset.guess);
         if(!validGuess(guess))  return;
-        speak(currentPlayer(),`${guess.number} ${guess.digit}(s)`);
+        speak(currentPlayer(),formatGuess(guess));
         game.step(guess);
         activatePlayer(currentPlayer());
 
-        drawGuessBTNs(guess);
-        
-        if(OPPONENT=="computer") {
-            const computerAction = await computerStrategy(game);
-            if(computerAction == "call") {
-                speak(currentPlayer(),"Call");
-                game.step({number:0,digit:0});
-                drawNumbers(northPlayerCards(),"top");
+        drawGuessBTNs();
+        showTurnStatus();
 
-                let gamewinner = game.winner();
-                let winner = (gamewinner == 0)? player0:player1;
-                let loser = (gamewinner == 0)? player1:player0;
-
-                if(loser.digits == 1)
-                    showGameOver(winner);
-                else {
-                    loser.digits--;
-                    lastLoser = loser;
-                    nextround.classList.remove("hide");
-                }
-                return;
-            }
-            else {
-                speak(currentPlayer(),`${computerAction.number} ${computerAction.digit}(s)`);
-                game.step(computerAction);
-                activatePlayer(currentPlayer());
-                drawGuessBTNs(computerAction);
-            }
+        if(VS_COMPUTER) {
+            await computerMove();
         }
-
     })
 
     call.addEventListener('click',function(event){
-        prompt.classList.add("hide");   // prompt is not needed for old players
-        if(!nextround.classList.contains("hide")) {
+        if(game.roundover()) {
             // the round has been over!
             return;
         }
         if(!game.lastAction())  return;
-        speak(currentPlayer(),"Call");
+        if(currentPlayer().name == "computer")  return;
+        speak(currentPlayer(),"Call!");
         game.step({number:0,digit:0});
-        drawNumbers(northPlayerCards(),"top");
-        drawNumbers(southPlayerCards(),"bottom");
-        
-        let gamewinner = game.winner();
-        let winner = (gamewinner == 0)? player0:player1;
-        let loser = (gamewinner == 0)? player1:player0;
+        endRound();
+    })
+
+    function endRound() {
+        // the call has just been stepped, so the turn is back with the guesser
+        const guess = game.history[game.history.length - 2];
+        const gamewinner = game.winner();
+        const winner = (gamewinner == 0)? player0:player1;
+        const loser = (gamewinner == 0)? player1:player0;
+        const actual = game.playerCards0.concat(game.playerCards1).filter(card => card === guess.digit).length;
+
+        gamestart.classList.add("round-over");
+        southSeat.classList.remove("is-turn");
+        northSeat.classList.remove("is-turn");
+
+        // reveal both hands, lighting up the digits that count
+        drawNumbers(northPlayerCards(),"top",guess.digit);
+        drawNumbers(southPlayerCards(),"bottom",guess.digit);
+
+        // show the real count against the guess on the board
+        drawGuessBTNs();
+        for(let i=1; i<=Math.max(actual,guess.number); i++) {
+            const tile = tileAt(i,guess.digit);
+            tile.classList.remove("is-last","is-spent");
+            tile.classList.add(i <= actual? "is-actual":"is-short");
+        }
+
+        const verdict = (actual >= guess.number)? "holds":"fails";
+        const loses = (loser.label == "You")? "You lose" : `${loser.label} loses`;
+        setStatus(`There ${actual == 1? "is":"are"} <b>${actual}</b> × <span class="chip">${guess.digit}</span>, so the guess of ${formatGuess(guess)} <strong class="verdict-${verdict}">${verdict}</strong>. ${loses} a digit.`);
+
+        call.classList.add("hide");
 
         if(loser.digits == 1)
-            showGameOver(winner);
+            setTimeout(() => showGameOver(winner), 1400);
         else {
             loser.digits--;
             lastLoser = loser;
             nextround.classList.remove("hide");
+            nextround.focus({preventScroll:true});
         }
-    })
+    }
 
-    northView.addEventListener('click',function(event){
-        if(northView.innerHTML=="View") {
+    peekSouth.addEventListener('click',function(event){
+        if(peekSouth.innerHTML=="View") {
             drawNumbers(southPlayerCards(),"bottom");
-            northView.innerHTML="Hide";
+            peekSouth.innerHTML="Hide";
         }
         else {
             drawNumbers(new Array(southPlayer.digits).fill(UNKNOWN),"bottom");
-            northView.innerHTML="View";
+            peekSouth.innerHTML="View";
         }
     })
 
-    southView.addEventListener('click',function(event){
-        if(southView.innerHTML=="View") {
+    peekNorth.addEventListener('click',function(event){
+        if(peekNorth.innerHTML=="View") {
             drawNumbers(northPlayerCards(),"top");
-            southView.innerHTML="Hide";
+            peekNorth.innerHTML="Hide";
         }
         else {
             drawNumbers(new Array(northPlayer.digits).fill(UNKNOWN),"top");
-            southView.innerHTML="View";
+            peekNorth.innerHTML="View";
         }
     })
 
@@ -327,20 +395,28 @@ export function game_init(OPPONENT,LEVEL="easy"){
     })
 
     function showGameOver(winner){
-        if(OPPONENT=="computer") {
-            updateStats(LEVEL, winner.name == southPlayer.name);
+        const playerWon = winner.name == southPlayer.name;
+        if(VS_COMPUTER) {
+            updateStats(LEVEL, playerWon);
         }
 
-        let message = "The Winner is";
+        let message = `${winner.label} wins!`;
+        if(VS_COMPUTER)
+            message = playerWon? "You win!":"Computer wins";
 
         gameOverElement.innerHTML = `
-            <h1>${message}
-            <img class="winner-img " src=${winner.imgSrc} </img>
-            <div class="play" onclick="location.reload()">Play Again!</div>
-            </h1>
+            <div class="panel">
+                <p class="panel-sub">Game over</p>
+                <h2>${message}</h2>
+                <img class="winner-img" src="${winner.imgSrc}" alt="">
+                <div class="panel-actions">
+                    <button type="button" class="btn btn-primary" onclick="location.reload()">Play again</button>
+                </div>
+            </div>
         `;
 
         gameOverElement.classList.remove("hide");
+        gameOverElement.querySelector("button").focus({preventScroll:true});
     }
 
 }

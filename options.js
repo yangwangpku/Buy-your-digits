@@ -85,9 +85,16 @@ backBtn.addEventListener("click", function(){
     statisticsSection.classList.add("hide");
 });
 
+// clicking the dimmed backdrop closes the statistics panel too
+statisticsSection.addEventListener("click", function(event){
+    if(event.target === statisticsSection)
+        statisticsSection.classList.add("hide");
+});
+
 resetBtn.addEventListener("click", function(){
     resetStats();
-    alert("Statistics Reseted!");
+    resetBtn.textContent = "Reset done";
+    setTimeout(() => { resetBtn.textContent = "Reset"; }, 1500);
 });
 
 document.addEventListener("DOMContentLoaded",  () => {

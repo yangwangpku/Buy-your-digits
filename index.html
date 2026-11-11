@@ -3,180 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="description" content="Buy-your-digits is a strategic two-player number guessing game. Bluff, raise, or call your opponent's guess.">
+    <meta name="theme-color" content="#14402c">
     <title>Buy-your-digits - A simple strategic two-player number guessing game implemented in JavaScript</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="description">
-        <p>This game is open-sourced! You can find the source code and contribute on <a href="https://github.com/yangwangpku/Buy-your-digits" target="_blank">GitHub</a>. If you love this game, please give it a ⭐️ on GitHub to show your support!</p>
-    </div>
+    <header class="topbar">
+        <a class="brand" href="./">Buy-your-digits</a>
+        <nav class="topnav">
+            <button type="button" class="navlink" id="statisticsBtn">Statistics</button>
+            <a class="navlink" href="#rules">Rules</a>
+            <a class="navlink" href="https://github.com/yangwangpku/Buy-your-digits" target="_blank" rel="noopener">GitHub</a>
+        </nav>
+    </header>
 
-    <h3 class="menu">
-        <span id="statisticsBtn">Statistics</span>
-    </h3>
+    <main class="container">
 
-    
-    <div class="container">
-        <div class="options">
+        <!-- Start screen -->
+        <section class="options">
             <h1>Buy-your-digits</h1>
-            
+            <p class="tagline">Bluff, raise, or call. Last player holding digits wins.</p>
+
+            <div class="sample-hand" aria-hidden="true">
+                <span class="number">3</span>
+                <span class="number">1</span>
+                <span class="number">4</span>
+                <span class="number is-hidden">?</span>
+                <span class="number is-hidden">?</span>
+            </div>
 
             <div id="player" class="section">
-                <h2>Play Versus</h2>
-                <div class="computer">COMPUTER</div>
-                <div class="friend">FRIEND</div>
+                <h2>Play versus</h2>
+                <div class="segmented">
+                    <button type="button" class="computer">Computer</button>
+                    <button type="button" class="friend">Friend</button>
+                </div>
             </div>
 
             <div id="difficulty" class="section">
                 <h2>Difficulty</h2>
-                <div class="easy">Easy</div>
-                <div class="hard">Hard</div>
+                <div class="segmented">
+                    <button type="button" class="easy">Easy</button>
+                    <button type="button" class="hard">Hard</button>
+                </div>
             </div>
 
-            <div class="play">PLAY</div>
-        </div>
+            <button type="button" class="play btn btn-primary">Play</button>
+        </section>
 
+        <!-- Game table -->
+        <section class="gamestart hide">
+            <div class="table-main">
 
-        <div class="gamestart hide">
-            <img class="opponent" src="img/player2.svg" alt="opponent">
-            <img class="man" src="img/player1.svg" alt="man">
-
-            <div class="guess"> 
-                <div class="guesstext">
-                    <h3>Guess: <span id="guessnumber">1</span> </h3>
-                    <div class="number" style="left:300px; width:40px; height:40px; font-size: 1.2em;">
-                        <span id="guessdigit">1</span>
+                <div class="seat seat-north" id="northSeat">
+                    <div class="seat-id">
+                        <img class="avatar opponent" src="img/player2.svg" alt="">
+                        <span class="seat-name" id="northName">Opponent</span>
                     </div>
+                    <div class="hand" id="northHand"></div>
+                    <div class="bubble northBubble" aria-live="polite"><span class="bubbletext" id="northBubbletext"></span></div>
+                    <button type="button" class="peek peekNorth hide">View</button>
+                </div>
 
+                <div class="board">
+                    <p class="status" id="status" aria-live="polite"></p>
+                    <div class="guess-scroll">
+                        <div class="guess" role="group" aria-label="Guess board"></div>
+                    </div>
+                    <div class="actions">
+                        <button type="button" class="call btn btn-danger" disabled>Call</button>
+                        <button type="button" class="nextround btn btn-primary hide">Next round</button>
+                    </div>
+                </div>
+
+                <div class="seat seat-south" id="southSeat">
+                    <div class="seat-id">
+                        <img class="avatar man" src="img/player1.svg" alt="">
+                        <span class="seat-name" id="southName">You</span>
+                    </div>
+                    <div class="hand" id="southHand"></div>
+                    <div class="bubble southBubble" aria-live="polite"><span class="bubbletext" id="southBubbletext"></span></div>
+                    <button type="button" class="peek peekSouth hide">View</button>
                 </div>
             </div>
 
-            <div class="history"> 
-                <h3>History</h3>
-                <p id="historytext"> 1-1 </p>
+            <aside class="history">
+                <h3>This round</h3>
+                <ol id="historytext"></ol>
+                <p class="history-empty">No guesses yet.</p>
+            </aside>
+        </section>
+
+        <!-- Game over -->
+        <div class="gameover overlay hide"></div>
+
+        <!-- Statistics -->
+        <div class="statistics overlay hide">
+            <div class="panel">
+                <h2>Statistics</h2>
+                <p class="panel-sub">Your record against the computer</p>
+                <div class="stat-cols">
+                    <div class="stat-col">
+                        <h3>Easy</h3>
+                        <dl class="stats">
+                            <div class="stat"><dt>Wins</dt><dd id="easyWin">0</dd></div>
+                            <div class="stat"><dt>Losses</dt><dd id="easyLose">0</dd></div>
+                            <div class="stat"><dt>Win rate</dt><dd id="easyWinRate">0%</dd></div>
+                            <div class="stat"><dt>Games played</dt><dd id="easyGamesPlayed">0</dd></div>
+                        </dl>
+                    </div>
+                    <div class="stat-col">
+                        <h3>Hard</h3>
+                        <dl class="stats">
+                            <div class="stat"><dt>Wins</dt><dd id="hardWin">0</dd></div>
+                            <div class="stat"><dt>Losses</dt><dd id="hardLose">0</dd></div>
+                            <div class="stat"><dt>Win rate</dt><dd id="hardWinRate">0%</dd></div>
+                            <div class="stat"><dt>Games played</dt><dd id="hardGamesPlayed">0</dd></div>
+                        </dl>
+                    </div>
+                </div>
+                <div class="panel-actions">
+                    <button type="button" class="reset btn btn-ghost">Reset</button>
+                    <button type="button" class="back btn btn-primary">Back</button>
+                </div>
             </div>
-
-            <div class="call">Call</div>
-
-            <img class="southTurn" src="img/turn.svg" alt="southTurn">
-            <img class="northTurn" src="img/turn.svg" alt="northTurn">
-
-            <div class="northView hide">View</div>
-            <div class="southView hide">View</div>
-            
-            <div class="southBubble">
-                <img class="bubble" src="img/bubble.svg", alt="speech bubble">
-                <div class="bubbletext" id="southBubbletext"></div>
-            </div>
-
-            <div class="northBubble">
-                <img class="bubble" src="img/bubble.svg", alt="speech bubble">
-                <div class="bubbletext" id="northBubbletext"></div>
-            </div>
-
-            <div class="nextround hide">Next Round</div>
-            
-            <div class="prompt"> Make a guess below or click the Call button to challenge the last guess! </div>
         </div>
-        <div class="gameover hide"></div>
+    </main>
 
+    <section class="description" id="rules">
+        <h2 class="rules-title">How to play</h2>
 
-        <div class="statistics hide">
-            <h3>Easy</h3>
-            <div class="stats">
-                <div class="stat">
-                    <p>Wins: <span id="easyWin">0</span> </p>
+        <ol class="rule-grid">
+            <li class="rule">
+                <div class="demo" aria-hidden="true">
+                    <div class="demo-row"><span class="demo-label">You</span><span class="number">3</span><span class="number">1</span><span class="number">4</span><span class="number">4</span><span class="number">2</span></div>
+                    <div class="demo-row"><span class="demo-label">Opponent</span><span class="number is-hidden">?</span><span class="number is-hidden">?</span><span class="number is-hidden">?</span><span class="number is-hidden">?</span><span class="number is-hidden">?</span></div>
                 </div>
-                <div class="stat">
-                    <p>Losses: <span id="easyLose">0</span> </p>
+                <div class="rule-body">
+                    <h3>Get your digits</h3>
+                    <p>Each player gets 5 secret digits, from 1 to 4.</p>
                 </div>
-                <div class="stat">
-                    <p>Win Rate: <span id="easyWinRate">0%</span> </p>
-                </div>
-                <div class="stat">
-                    <p>Games Played: <span id="easyGamesPlayed">0</span> </p>
-                </div>
-            </div>
-
-            <h3>Hard</h3>
-            <div class="stats">
-                <div class="stat">
-                    <p>Wins: <span id="hardWin">0</span> </p>
-                </div>
-                <div class="stat">
-                    <p>Losses: <span id="hardLose">0</span> </p>
-                </div>
-                <div class="stat">
-                    <p>Win Rate: <span id="hardWinRate">0%</span> </p>
-                </div>
-                <div class="stat">
-                    <p>Games Played: <span id="hardGamesPlayed">0</span> </p>
-                </div>
-            </div>
-
-            <div class="back">Back</div>
-            <div class="reset">Reset</div>
-
-        </div>
-
-    </div>
-
-    <div class="description">
-        <h2>
-            Game Objective
-        </h2>
-        <ol>
-            The aim is to correctly guess the total occurrences of a specific digit (1-4) present in <span style="color: red;">both</span> players' hands.
-        </ol>
-        <h2>
-            Setup
-        </h2>
-        <ol>
-            <li>Each player starts with a random sequence of 5 digits ranging from 1-4.</li>
-            <li>Players take turns to make a guess or challenge the opponent's previous guess.</li>
-        </ol>
-        <h2>
-            Gameplay
-        </h2>
-        <ol>
-            <li>
-                <strong>Making a Guess:</strong>
-                <p>On your turn, you can guess the total occurrences of a specific digit. Your guess must be more aggressive than the previous one. (e.g., after a guess of (3 3s), valid guesses include (3 4s), (5 1s), or (6 2s), but not (3 2s) or (2 4s)).</p>
             </li>
-            <li>
-                <strong>Challenging a Guess:</strong>
-                <p>Instead of guessing, you can challenge the opponent's last guess. A challenge ends the round and all digits are revealed.</p>
+
+            <li class="rule">
+                <div class="demo" aria-hidden="true">
+                    <div class="demo-row"><span class="demo-bubble"><span class="bid"><b>3</b> × <span class="chip">4</span></span></span></div>
+                    <div class="demo-row"><span class="number">4</span><span class="number">4</span><span class="number">4</span><span class="demo-note">or more</span></div>
+                </div>
+                <div class="rule-body">
+                    <h3>Make a guess</h3>
+                    <p>Say how many of one digit are in <mark>both</mark> hands combined.</p>
+                </div>
+            </li>
+
+            <li class="rule">
+                <div class="demo" aria-hidden="true">
+                    <div class="demo-row"><span class="demo-note">after</span><span class="demo-bubble"><span class="bid"><b>3</b> × <span class="chip">3</span></span></span></div>
+                    <div class="demo-checks">
+                        <span class="check ok"><span class="bid"><b>3</b> × <span class="chip">4</span></span></span>
+                        <span class="check ok"><span class="bid"><b>5</b> × <span class="chip">1</span></span></span>
+                        <span class="check no"><span class="bid"><b>3</b> × <span class="chip">2</span></span></span>
+                        <span class="check no"><span class="bid"><b>2</b> × <span class="chip">4</span></span></span>
+                    </div>
+                </div>
+                <div class="rule-body">
+                    <h3>Raise it</h3>
+                    <p>Each guess must beat the last: a higher count, or the same count of a higher digit.</p>
+                </div>
+            </li>
+
+            <li class="rule">
+                <div class="demo" aria-hidden="true">
+                    <div class="demo-row"><span class="demo-bubble"><span class="bid"><b>3</b> × <span class="chip">4</span></span></span><span class="demo-bubble demo-call">Call!</span></div>
+                    <div class="demo-row"><span class="number">3</span><span class="number">1</span><span class="number is-match">4</span><span class="number is-match">4</span><span class="number">2</span></div>
+                    <div class="demo-row"><span class="number is-match">4</span><span class="number">1</span><span class="number">2</span><span class="number">2</span><span class="number">3</span></div>
+                </div>
+                <div class="rule-body">
+                    <h3>Or call it</h3>
+                    <p>Think the last guess is too high? Call. All digits are revealed and counted.</p>
+                </div>
+            </li>
+
+            <li class="rule">
+                <div class="demo" aria-hidden="true">
+                    <div class="demo-row demo-verdict"><span class="number is-match">4</span><span class="number is-match">4</span><span class="number is-match">4</span><span class="demo-op">≥</span><span class="bid"><b>3</b> × <span class="chip">4</span></span><span class="demo-out">caller loses</span></div>
+                    <div class="demo-row demo-verdict"><span class="number is-match">4</span><span class="number is-match">4</span><span class="demo-op">&lt;</span><span class="bid"><b>3</b> × <span class="chip">4</span></span><span class="demo-out">guesser loses</span></div>
+                </div>
+                <div class="rule-body">
+                    <h3>Settle the round</h3>
+                    <p>Enough digits to match the guess: the caller loses. <mark>Too few</mark>: the guesser loses.</p>
+                </div>
+            </li>
+
+            <li class="rule">
+                <div class="demo" aria-hidden="true">
+                    <div class="demo-row"><span class="demo-label">Loser</span><span class="number">3</span><span class="number">1</span><span class="number">4</span><span class="number">2</span><span class="number is-lost"></span></div>
+                    <div class="demo-row"><span class="demo-label">Out</span><span class="number is-lost"></span><span class="number is-lost"></span><span class="number is-lost"></span><span class="number is-lost"></span><span class="number is-lost"></span></div>
+                </div>
+                <div class="rule-body">
+                    <h3>Lose a digit</h3>
+                    <p>The round loser gives up one digit and starts the next round. Last player holding digits wins.</p>
+                </div>
             </li>
         </ol>
-        <h2>
-            Determining the Round Winner
-        </h2>
-        <ol>
-            <li>If the guess is <span style="color: red;">correct or underestimated</span>, the challenger loses the round.</li>
-            <li>If the guess is <span style="color: red;">overestimated</span>, the guesser loses the round.</li>
-        </ol>
-        <h2>
-            Post-Round
-        </h2>
-        <ol>
-            <li>The round loser loses one digit.</li>
-            <li>A new round begins with the remaining digits.</li>
-            <li>The loser starts the next round.</li>
-        </ol>
-        <h2>
-            Winning the Game
-        </h2>
-        <ol>
-            The game continues until one player loses all their digits. The player who still has digits remaining is the winner.
-        </ol>
-    </div>
+
+        <p class="footnote">This game is open-sourced! You can find the source code and contribute on <a href="https://github.com/yangwangpku/Buy-your-digits" target="_blank" rel="noopener">GitHub</a>. If you love this game, please give it a ⭐️ on GitHub to show your support!</p>
+    </section>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/msgpack-lite/0.1.26/msgpack.min.js"></script>
     <script type="module" src="options.js"></script>
-    <!-- <script src="options.js"></script> -->
-    <!-- <script src="utils.js"></script>
-    <script src="options.js"></script>
-    <script src="game.js"></script> -->
 </body>
 </html>
